@@ -334,17 +334,42 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
     // Sidebar toggle for the App + Sidebar components: open at md+ by default, closable on mobile.
     const popuiSidebar = document.getElementById('popui-sidebar')
     if (popuiSidebar) {
+      const mql = window.matchMedia('(min-width: 768px)')
+      // Sidebar's Persist prop: remember the collapsed state on md+ screens.
+      const persistKey = popuiSidebar.dataset.sidebarPersist
+      const persistedClosed = () => {
+        if (!persistKey) return false
+        try {
+          return localStorage.getItem(persistKey) === 'closed'
+        } catch {
+          return false
+        }
+      }
+      const persist = () => {
+        if (!persistKey || !mql.matches) return
+        try {
+          const open = popuiSidebar.classList.contains('popui-sidebar-open')
+          localStorage.setItem(persistKey, open ? 'open' : 'closed')
+        } catch {
+          // Storage unavailable (private mode, blocked): state just isn't kept.
+        }
+      }
       const openSidebar = () => popuiSidebar.classList.add('popui-sidebar-open')
       const closeSidebar = () => popuiSidebar.classList.remove('popui-sidebar-open')
-      const toggleSidebar = () => popuiSidebar.classList.toggle('popui-sidebar-open')
-      const mql = window.matchMedia('(min-width: 768px)')
-      if (mql.matches) openSidebar()
+      const toggleSidebar = () => {
+        popuiSidebar.classList.toggle('popui-sidebar-open')
+        persist()
+      }
+      if (mql.matches && !persistedClosed()) openSidebar()
       requestAnimationFrame(() => popuiSidebar.classList.add('popui-sidebar-ready'))
       document.querySelectorAll('[data-sidebar-toggle]').forEach((btn) => {
         btn.addEventListener('click', toggleSidebar)
       })
       document.querySelectorAll('[data-sidebar-hide]').forEach((btn) => {
-        btn.addEventListener('click', closeSidebar)
+        btn.addEventListener('click', () => {
+          closeSidebar()
+          persist()
+        })
       })
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !mql.matches) closeSidebar()
@@ -357,7 +382,7 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
         }
       })
       mql.addEventListener('change', (e) => {
-        if (e.matches) openSidebar()
+        if (e.matches && !persistedClosed()) openSidebar()
         else closeSidebar()
       })
     }

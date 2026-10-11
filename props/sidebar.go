@@ -13,6 +13,11 @@ type Sidebar struct {
 	Class      string
 	Variant    string
 	Attributes templ.Attributes
+	// Persist, when set, is the localStorage key under which the sidebar
+	// remembers whether it was collapsed on md+ screens, so the choice
+	// survives page loads. Below md the sidebar is an overlay and always
+	// starts closed.
+	Persist string
 }
 
 // SidebarSection Templ component props

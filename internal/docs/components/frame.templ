@@ -1,0 +1,29 @@
+package components
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/examples"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/modules"
+)
+
+templ Frame() {
+	@modules.Example(modules.ExampleProps{
+		Description: "Frame fills the remaining space of its flex container. Inside an App, place it directly in Main to host another app.",
+		Code:        examples.LoadExample("frame.templ"),
+	}) {
+		@examples.FrameExample()
+	}
+	@modules.Section("API Reference", "api") {
+		@modules.APITable(modules.APITableProps{
+			Title:       "Frame",
+			Description: "Borderless iframe that embeds another page.",
+			Items: []modules.APITableItem{
+				{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the iframe"},
+				{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with frame styles"},
+				{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes (sandbox, allow, x-show, etc.)"},
+				{Name: "Src", Type: "templ.SafeURL", Default: "", Description: "Page to embed; prefer same-origin paths", Required: true},
+				{Name: "Title", Type: "string", Default: "", Description: "Accessible description of the embedded page"},
+				{Name: "Lazy", Type: "bool", Default: "false", Description: "Defer loading until the frame is about to become visible"},
+			},
+		})
+	}
+}

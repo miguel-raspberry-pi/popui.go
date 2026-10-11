@@ -26,10 +26,33 @@ templ Sidebar(opts ...props.Sidebar) {
 				p.Class,
 			),
 		}
+		if p.Persist != "" {
+			data-sidebar-persist={ p.Persist }
+		}
 		{ p.Attributes... }
 	>
+		if p.Persist != "" {
+			@sidebarRestore()
+		}
 		{ children... }
 	</nav>
+}
+
+// sidebarRestore runs while the page is parsed, right after the sidebar
+// opens, so a sidebar persisted as collapsed starts collapsed without
+// first painting open. popui.js takes over on DOMContentLoaded.
+templ sidebarRestore() {
+	<script>
+		(function () {
+			try {
+				var nav = document.currentScript.parentElement;
+				if (window.matchMedia('(min-width: 768px)').matches &&
+					localStorage.getItem(nav.dataset.sidebarPersist) === 'closed') {
+					nav.classList.add('popui-sidebar-ready');
+				}
+			} catch (e) {}
+		})();
+	</script>
 }
 
 // SidebarHeader provides a header for the sidebar

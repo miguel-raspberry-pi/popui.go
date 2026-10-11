@@ -8,7 +8,7 @@ import (
 
 templ AppWithSidebarExample() {
 	@popui.App(props.App{Title: "Application With Sidebar"}) {
-		@popui.Sidebar() {
+		@popui.Sidebar(props.Sidebar{Persist: "popui-docs-sidebar"}) {
 			@popui.SidebarHeader() {
 				@popui.InvopopLogoSquare()
 				<span class="flex-1">Sidebar</span>
