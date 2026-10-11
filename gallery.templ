@@ -1,0 +1,226 @@
+package popui
+
+import (
+	"encoding/json"
+	"strconv"
+
+	"github.com/invopop/icons"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
+)
+
+// Gallery shows a set of photos: a large main image, a strip of
+// thumbnails that switch it, and a fullscreen viewer (a modal <dialog>)
+// opened by clicking the main image, with previous/next buttons, arrow
+// keys, Esc to close, captions and a "2 / 5" counter.
+//
+// The state lives in an Alpine.js scope (popui.App includes Alpine).
+// Without JavaScript the first image and caption are shown and the main
+// image links to the full-size file. Thumbnails load lazily. With no
+// images an empty state is shown.
+templ Gallery(opts ...props.Gallery) {
+	{{ p := props.First(opts) }}
+	{{ aspect := galleryAspectClass(p.AspectClass) }}
+	if len(p.Images) == 0 {
+		<div
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			class={ tailwind.Merge("popui-gallery flex w-full items-center justify-center rounded-lg border border-dashed border-border-document-png bg-background-document-png", aspect, p.Class) }
+			data-gallery
+			{ p.Attributes... }
+		>
+			@PageState(props.PageState{Title: galleryEmptyText(p.Empty)})
+		</div>
+	} else {
+		{{ first := p.Images[0] }}
+		{{ many := len(p.Images) > 1 }}
+		<div
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			class={ tailwind.Merge("popui-gallery flex w-full min-w-0 flex-col gap-2", p.Class) }
+			role="group"
+			aria-roledescription="gallery"
+			aria-label="Photos"
+			data-gallery
+			x-data={ galleryData(p.Images) }
+			if many {
+				@keydown.arrow-left.prevent="go(-1)"
+				@keydown.arrow-right.prevent="go(1)"
+			}
+			{ p.Attributes... }
+		>
+			<div class={ tailwind.Merge("group/gallery relative w-full overflow-hidden rounded-lg bg-background-default-secondary", aspect) }>
+				<a
+					href={ templ.URL(first.Src) }
+					target="_blank"
+					rel="noopener"
+					class="block size-full cursor-zoom-in focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-border-selected-bold"
+					@click.prevent="show()"
+					aria-label="Open fullscreen viewer"
+					:href="cur.src"
+				>
+					<img
+						src={ first.Src }
+						alt={ first.Alt }
+						:src="cur.src"
+						:alt="cur.alt"
+						class="size-full object-cover"
+						data-gallery-main
+					/>
+				</a>
+				if many {
+					<div class="absolute inset-y-0 left-2 flex items-center" x-cloak>
+						@Button(props.Button{Type: "button", Size: props.ButtonSizeIcon, Class: "rounded-full", Attributes: templ.Attributes{"@click": "go(-1)", "aria-label": "Previous photo", "data-gallery-prev": true}}) {
+							@icons.ChevronLeft()
+						}
+					</div>
+					<div class="absolute inset-y-0 right-2 flex items-center" x-cloak>
+						@Button(props.Button{Type: "button", Size: props.ButtonSizeIcon, Class: "rounded-full", Attributes: templ.Attributes{"@click": "go(1)", "aria-label": "Next photo", "data-gallery-next": true}}) {
+							@icons.ChevronRight()
+						}
+					</div>
+					<span
+						class="pointer-events-none absolute right-2 bottom-2 rounded px-1.5 py-0.5 bg-background-default-negative/70 text-sm font-medium text-foreground-inverse tabular-nums"
+						aria-live="polite"
+						x-text="counter"
+						data-gallery-counter
+					>{ galleryCounter(1, len(p.Images)) }</span>
+				}
+			</div>
+			if galleryHasCaptions(p.Images) {
+				<p
+					class="min-h-4 text-sm text-foreground-default-secondary"
+					x-text="cur.caption"
+					data-gallery-caption
+				>{ first.Caption }</p>
+			}
+			if many {
+				<div class="flex gap-2 overflow-x-auto pb-1" data-gallery-thumbs>
+					for i, img := range p.Images {
+						<button
+							type="button"
+							class="relative aspect-[4/3] w-20 shrink-0 cursor-pointer overflow-hidden rounded-md border-2 border-transparent bg-background-default-secondary opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-border-selected-bold data-[state=active]:border-border-selected-bold data-[state=active]:opacity-100"
+							if i == 0 {
+								data-state="active"
+								aria-current="true"
+							} else {
+								data-state="inactive"
+							}
+							:data-state={ "i === " + strconv.Itoa(i) + " ? 'active' : 'inactive'" }
+							:aria-current={ "i === " + strconv.Itoa(i) + " ? 'true' : null" }
+							@click={ "i = " + strconv.Itoa(i) }
+							aria-label={ galleryThumbLabel(img, i, len(p.Images)) }
+							data-gallery-thumb
+						>
+							<img src={ galleryThumb(img) } alt="" loading="lazy" decoding="async" class="size-full object-cover"/>
+						</button>
+					}
+				</div>
+			}
+			<dialog
+				x-ref="viewer"
+				class="popui-gallery-viewer m-0 border-0 h-dvh max-h-none w-dvw max-w-none bg-background-default-negative p-0 text-foreground-inverse backdrop:bg-background-default-negative/80"
+				aria-label="Photo viewer"
+				data-gallery-viewer
+			>
+				<div class="flex size-full flex-col gap-3 p-4">
+					<div class="flex items-center justify-between gap-2">
+						<span class="text-base font-medium tabular-nums" x-text="counter">{ galleryCounter(1, len(p.Images)) }</span>
+						@Button(props.Button{Type: "button", Variant: props.ButtonVariantInverse, Size: props.ButtonSizeIcon, Attributes: templ.Attributes{"@click": "$refs.viewer.close()", "aria-label": "Close viewer", "data-gallery-close": true}}) {
+							@icons.Close()
+						}
+					</div>
+					<div class="relative flex min-h-0 flex-1 items-center justify-center" @click.self="$refs.viewer.close()">
+						<img
+							src={ first.Src }
+							alt={ first.Alt }
+							:src="cur.src"
+							:alt="cur.alt"
+							class="max-h-full max-w-full rounded-md object-contain"
+						/>
+						if many {
+							<div class="absolute inset-y-0 left-0 flex items-center">
+								@Button(props.Button{Type: "button", Variant: props.ButtonVariantInverse, Size: props.ButtonSizeIcon, Class: "rounded-full", Attributes: templ.Attributes{"@click": "go(-1)", "aria-label": "Previous photo"}}) {
+									@icons.ChevronLeft()
+								}
+							</div>
+							<div class="absolute inset-y-0 right-0 flex items-center">
+								@Button(props.Button{Type: "button", Variant: props.ButtonVariantInverse, Size: props.ButtonSizeIcon, Class: "rounded-full", Attributes: templ.Attributes{"@click": "go(1)", "aria-label": "Next photo"}}) {
+									@icons.ChevronRight()
+								}
+							</div>
+						}
+					</div>
+					<p class="min-h-4 text-center text-sm text-foreground-inverse-secondary" x-text="cur.caption">{ first.Caption }</p>
+				</div>
+			</dialog>
+		</div>
+	}
+}
+
+type galleryItem struct {
+	Src     string `json:"src"`
+	Alt     string `json:"alt"`
+	Caption string `json:"caption"`
+}
+
+// galleryData is the Alpine scope of a Gallery. JSON is valid JavaScript
+// and json.Marshal escapes <, > and &, so image fields are safe here.
+func galleryData(images []props.GalleryImage) string {
+	items := make([]galleryItem, len(images))
+	for i, img := range images {
+		items[i] = galleryItem{Src: img.Src, Alt: img.Alt, Caption: img.Caption}
+	}
+	data, _ := json.Marshal(items)
+	return "{ i: 0, imgs: " + string(data) + ", " +
+		"get cur() { return this.imgs[this.i] }, " +
+		"get counter() { return (this.i + 1) + ' / ' + this.imgs.length }, " +
+		"go(d) { this.i = (this.i + d + this.imgs.length) % this.imgs.length; " +
+		"this.$nextTick(() => { const t = this.$root.querySelectorAll('[data-gallery-thumb]')[this.i]; " +
+		"if (t) t.scrollIntoView({ block: 'nearest', inline: 'nearest' }) }) }, " +
+		"show() { if (!this.$refs.viewer.open) this.$refs.viewer.showModal() } }"
+}
+
+func galleryAspectClass(c string) string {
+	if c == "" {
+		return "aspect-[4/3]"
+	}
+	return c
+}
+
+func galleryEmptyText(s string) string {
+	if s == "" {
+		return "No photos"
+	}
+	return s
+}
+
+func galleryThumb(img props.GalleryImage) string {
+	if img.Thumb != "" {
+		return img.Thumb
+	}
+	return img.Src
+}
+
+func galleryCounter(i, n int) string {
+	return strconv.Itoa(i) + " / " + strconv.Itoa(n)
+}
+
+func galleryThumbLabel(img props.GalleryImage, i, n int) string {
+	label := "Show photo " + galleryCounter(i+1, n)
+	if img.Alt != "" {
+		label += ": " + img.Alt
+	}
+	return label
+}
+
+func galleryHasCaptions(images []props.GalleryImage) bool {
+	for _, img := range images {
+		if img.Caption != "" {
+			return true
+		}
+	}
+	return false
+}
