@@ -3,6 +3,7 @@
 package popui
 
 import (
+	"context"
 	"crypto/md5"
 	"embed"
 	"fmt"
@@ -26,6 +27,33 @@ const (
 var Assets embed.FS
 
 var versionCache = map[string]string{}
+
+type assetBaseKey struct{}
+
+// WithAssetBase returns a context that makes components load PopUI assets
+// from base instead of AssetPath. This is needed when an application is
+// mounted under a path prefix, for example behind a reverse proxy that does
+// not strip it:
+//
+//	ctx = popui.WithAssetBase(ctx, "/apps/demo"+popui.AssetPath)
+func WithAssetBase(ctx context.Context, base string) context.Context {
+	return context.WithValue(ctx, assetBaseKey{}, base)
+}
+
+// AssetBase provides the path PopUI assets are served from for the
+// given context, defaulting to AssetPath.
+func AssetBase(ctx context.Context) string {
+	if b, ok := ctx.Value(assetBaseKey{}).(string); ok && b != "" {
+		return b
+	}
+	return AssetPath
+}
+
+// AssetURL provides the versioned URL of an embedded asset, relative to
+// the asset base defined in the context.
+func AssetURL(ctx context.Context, file ...string) string {
+	return path.Join(AssetBase(ctx), Versioned(Assets, file...))
+}
 
 // Versioned will find the file inside the provided filesystem and
 // add a version hash as a query parameter so that when the asset is loaded

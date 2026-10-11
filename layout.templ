@@ -4,7 +4,6 @@ import (
 	"github.com/invopop/popui.go/htmx"
 	"github.com/invopop/popui.go/props"
 	"github.com/invopop/popui.go/tailwind"
-	"path"
 )
 
 // HTML provides the root `<html>` element for an HTML document. The doctype
@@ -109,14 +108,14 @@ templ FontInterLinks() {
 // EmbeddedCSS provides the CSS to include in the `<head>` section of an HTML
 // document that will load the styles from embeded files served by the web server.
 templ EmbeddedCSS() {
-	<link href={ path.Join(AssetPath, Versioned(Assets, "assets", "popui.css")) } rel="stylesheet"/>
+	<link href={ AssetURL(ctx, "assets", "popui.css") } rel="stylesheet"/>
 }
 
 // EmbeddedJS provides the JS to include in the `<head>` section of an HTML
 // document that will load the Javascript code needed for dynamic components
 // such as Hamburger menu to function
 templ EmbeddedJS() {
-	<script src={ path.Join(AssetPath, Versioned(Assets, "assets", "popui.js")) }></script>
+	<script src={ AssetURL(ctx, "assets", "popui.js") }></script>
 }
 
 // AlpineJS loads the default AlpineJS library from a CDN.
@@ -132,7 +131,7 @@ templ AxiosJS() {
 // AlpineStoreContenteditable provides the JS to include in an Alpine component
 // that wants to use the AlpineJS library to enable contenteditable functionality.
 templ AlpineStoreContenteditable() {
-	<script src={ path.Join(AssetPath, Versioned(Assets, "assets", "contenteditable.js")) }></script>
+	<script src={ AssetURL(ctx, "assets", "contenteditable.js") }></script>
 }
 
 // AuthScript initializes the authentication interceptors for HTMX and Axios.
