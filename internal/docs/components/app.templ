@@ -151,6 +151,7 @@ templ App() {
 				{Name: "Title", Type: "string", Default: "", Description: "Title for the sidebar (currently unused in rendering, reserved for accessibility)"},
 				{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with sidebar styles"},
 				{Name: "Variant", Type: "string", Default: "", Description: "Visual style variant. Use \"dark\" for a dark background with inverse text and border colors."},
+				{Name: "Persist", Type: "string", Default: "", Description: "localStorage key under which the collapsed state (md+ screens) is remembered across page loads. Collapse with a data-sidebar-hide button; the Header's menu button reopens it."},
 				{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes"},
 			},
 		})

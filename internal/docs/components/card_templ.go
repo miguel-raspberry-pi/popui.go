@@ -185,7 +185,7 @@ func Card() templ.Component {
 		})
 		templ_7745c5c3_Err = modules.Example(modules.ExampleProps{
 			Title:       "Dashboard",
-			Description: "Display multiple metrics with a plain grid of stat tiles inside CardContent — no dedicated component needed.",
+			Description: "Display multiple metrics with CardStats, a grid of CardStat tiles inside CardContent. Children of a CardStat render below its value.",
 			Code:        examples.LoadExample("card_dashboard.templ"),
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -268,6 +268,41 @@ func Card() templ.Component {
 					{Name: "Current", Type: "int64", Default: "0", Description: "Current progress value"},
 					{Name: "Total", Type: "int64", Default: "0", Description: "Total/maximum value for progress"},
 					{Name: "HideCounter", Type: "bool", Default: "false", Description: "Hides the numeric counter display"},
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = modules.APITable(modules.APITableProps{
+				Title:       "CardStats",
+				Description: "Grid of CardStat metric tiles, used inside CardContent for dashboard summaries.",
+				Items: []modules.APITableItem{
+					{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the list element"},
+					{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with grid styles"},
+					{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes"},
+					{Name: "Columns", Type: "int", Default: "0", Description: "Fixed column count (2, 3 or 4). Zero fits as many tiles per row as the width allows"},
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = modules.APITable(modules.APITableProps{
+				Title:       "CardStat",
+				Description: "A single metric tile: muted label above a large value, with optional children below.",
+				Items: []modules.APITableItem{
+					{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the tile"},
+					{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with tile styles"},
+					{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes"},
+					{Name: "Label", Type: "string", Default: "", Description: "Metric name"},
+					{Name: "Value", Type: "string", Default: "", Description: "Metric value"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

@@ -1,0 +1,15 @@
+package examples
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+templ FrameExample() {
+	@popui.Block(props.Block{Class: "h-64 rounded-lg border border-border overflow-hidden"}) {
+		@popui.Frame(props.Frame{
+			Src:   "/components/page-state",
+			Title: "Embedded page",
+		})
+	}
+}

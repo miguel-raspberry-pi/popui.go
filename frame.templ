@@ -1,0 +1,30 @@
+package popui
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
+)
+
+// Frame embeds another page in a borderless iframe that fills the
+// remaining space of its flex container, typically a Main. Use it to host
+// a separate app inside an App shell.
+templ Frame(opts ...props.Frame) {
+	{{ p := props.First(opts) }}
+	<iframe
+		if p.ID != "" {
+			id={ p.ID }
+		}
+		src={ p.Src }
+		title={ p.Title }
+		if p.Lazy {
+			loading="lazy"
+		}
+		class={
+			tailwind.Merge(
+				"block w-full flex-1 min-h-0 border-0 bg-background",
+				p.Class,
+			),
+		}
+		{ p.Attributes... }
+	></iframe>
+}

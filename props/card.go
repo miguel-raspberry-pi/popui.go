@@ -76,3 +76,25 @@ func (p CardProgressBar) PercentColor() string {
 func (p CardProgressBar) FormatAmount(amount int64) string {
 	return fmt.Sprintf("%d", amount)
 }
+
+// CardStats Templ component props. It lays out CardStat tiles in a grid.
+type CardStats struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	// Columns fixes the number of columns (2, 3 or 4). Zero fits as many
+	// tiles per row as the card's width allows.
+	Columns int
+}
+
+// CardStat Templ component props: one metric tile inside CardStats.
+type CardStat struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+	// Label names the metric, shown above the value.
+	Label string
+	// Value is the metric, shown large. Children, when given, render
+	// below it (e.g. a TagStatus or a short note).
+	Value string
+}

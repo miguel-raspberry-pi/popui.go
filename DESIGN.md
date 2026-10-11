@@ -31,10 +31,11 @@ Before writing any UI element, check whether PopUI already covers it:
 | Primary content area | `Main` > `Article` > `Block` |
 | Side navigation | `Sidebar` > `SidebarSection` > `SidebarItem` |
 | Right panel / detail pane | `Aside` |
+| Embedded page / app (iframe) | `Frame` |
 | Content card | `Card` > `CardHeader` + `CardContent` |
 | Stack of related cards on a tinted ground | `CardDeck` > `CardDeckHead` + `Card` children |
 | Drag-to-reorder stack of cards | `CardDeck` with `Reorderable` > `CardDeckHead` + `CardDeckReorderButton` |
-| Metric display | `Card` + a plain `ul` grid of stat tiles (see the Card docs "Dashboard" example) |
+| Metric display | `Card` > `CardContent` > `CardStats` > `CardStat` tiles |
 | Progress bar | `CardProgressBar` |
 | File attachment display | `FileDownload` > `FileDownloadInfo` |
 | Data table | `Table` |
@@ -404,8 +405,8 @@ Card
 └── CardProgressBar (metric with progress)
 ```
 
-Metric grids are plain markup inside `CardContent` — a `ul` grid of stat
-tiles (see the Card docs "Dashboard" example).
+Metric grids are `CardStats` inside `CardContent`, holding one `CardStat`
+(label + value, optional children) per metric.
 
 File attachments are the `File` family: `FileDownload` > `FileDownloadInfo`.
 
@@ -464,6 +465,7 @@ Sidebar (variant: "" | "dark")
 - `SidebarItem` with `Selected: true` applies active highlight
 - Sidebar supports dark variant (`Variant: "dark"`) with inverted colors
 - Collapse button uses `data-sidebar-hide` attribute (Alpine.js)
+- Set `Persist: "<storage key>"` to remember the collapsed state across page loads
 - `SidebarHeader` expects: logo/icon + workspace name + collapse button
 
 **Breadcrumbs:**

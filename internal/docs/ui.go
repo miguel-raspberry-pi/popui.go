@@ -66,6 +66,12 @@ var groups = []*Group{
 				Template: components.Card(),
 			},
 			{
+				Title:    "Frame",
+				Desc:     "Borderless iframe that embeds another page, filling its container.",
+				Path:     "frame",
+				Template: components.Frame(),
+			},
+			{
 				Title:    "PageState",
 				Desc:     "Layout for displaying page states with illustrations and call-to-action.",
 				Path:     "page-state",

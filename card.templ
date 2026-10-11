@@ -161,3 +161,49 @@ css percentageStyle(percent int64, color string) {
 	width: { fmt.Sprintf("%d%%", percent) };
 	background: { color };
 }
+
+// CardStats lays out CardStat metric tiles in a grid inside CardContent,
+// for dashboard-style summaries.
+templ CardStats(p ...props.CardStats) {
+	{{ stats := props.First(p) }}
+	<ul
+		if stats.ID != "" {
+			id={ stats.ID }
+		}
+		class={
+			tailwind.Merge(
+				"grid gap-3",
+				classes.If(stats.Columns == 0, "grid-cols-[repeat(auto-fit,minmax(7rem,1fr))]"),
+				classes.If(stats.Columns == 2, "grid-cols-2"),
+				classes.If(stats.Columns == 3, "grid-cols-3"),
+				classes.If(stats.Columns == 4, "grid-cols-2 sm:grid-cols-4"),
+				stats.Class,
+			),
+		}
+		{ stats.Attributes... }
+	>
+		{ children... }
+	</ul>
+}
+
+// CardStat is a single metric tile: a muted label above a large value,
+// with optional children below. Use inside CardStats.
+templ CardStat(p ...props.CardStat) {
+	{{ stat := props.First(p) }}
+	<li
+		if stat.ID != "" {
+			id={ stat.ID }
+		}
+		class={
+			tailwind.Merge(
+				"flex flex-col items-center gap-0.5 py-3 px-2 rounded-md border border-border bg-background-default-secondary min-w-0",
+				stat.Class,
+			),
+		}
+		{ stat.Attributes... }
+	>
+		<p class="text-foreground-default-secondary text-sm truncate max-w-full">{ stat.Label }</p>
+		<p class="text-foreground text-xl font-medium tracking-tighter">{ stat.Value }</p>
+		{ children... }
+	</li>
+}
