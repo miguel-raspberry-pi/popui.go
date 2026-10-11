@@ -1,0 +1,37 @@
+package examples
+
+import (
+	"strconv"
+	"time"
+
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+// Several series share the axes and get a legend. Colors are semantic
+// names; series without one are colored by position.
+templ ChartMultiSeriesExample() {
+	@popui.Block(props.Block{Class: "w-full max-w-2xl"}) {
+		@popui.Chart(props.Chart{
+			Title:      "Median rent per m²",
+			Height:     240,
+			ShowPoints: true,
+			YFormat:    func(v float64) string { return strconv.FormatFloat(v, 'f', 1, 64) + " €/m²" },
+			XFormat:    func(t time.Time) string { return t.Format("Jan 06") },
+			Series: []props.ChartSeries{
+				{Label: "Gràcia", Color: props.ChartColorAccent, Points: chartMonthly(19.2, 19.4, 19.9, 20.3, 20.1, 20.8, 21.4)},
+				{Label: "Sants", Color: props.ChartColorAttention, Points: chartMonthly(16.8, 17.1, 17.0, 17.6, 17.9, 18.2, 18.1)},
+				{Label: "City average", Color: props.ChartColorNeutral, Points: chartMonthly(18.0, 18.1, 18.4, 18.6, 18.7, 19.0, 19.3)},
+			},
+		})
+	}
+}
+
+// chartMonthly spreads values over consecutive months from January 2026.
+func chartMonthly(values ...float64) []props.ChartPoint {
+	pts := make([]props.ChartPoint, len(values))
+	for i, v := range values {
+		pts[i] = props.ChartPoint{X: time.Date(2026, time.Month(i+1), 1, 0, 0, 0, 0, time.UTC), Y: v}
+	}
+	return pts
+}

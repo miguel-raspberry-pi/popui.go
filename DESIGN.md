@@ -71,6 +71,9 @@ Before writing any UI element, check whether PopUI already covers it:
 | Country flag | `Image` with `https://assets.invopop.com/flags/<cc>.svg` |
 | Range slider | `Slider` |
 | Image | `Image` |
+| Photo gallery / carousel with fullscreen viewer | `Gallery` (main image + thumbnails + `<dialog>` viewer) |
+| Line chart over time / price history | `Chart` (server-rendered SVG; `Step` for prices, `Area`, multiple series) |
+| Inline trend line | `Chart` with `Sparkline: true` |
 | Inline icon | Any icon from `github.com/invopop/icons` |
 
 ### When It's OK to Build Custom
@@ -104,6 +107,8 @@ Some requests sound custom but map directly to PopUI components:
 | "a success toast" | `Toast` with `Type: "success"` |
 | "a collapsible / expandable section" | `Accordion` |
 | "a copy button for an ID or hash" | `Button` with `Copy` (PrefixLength/SuffixLength truncate the display) |
+| "a graph / trend / sparkline" | `Chart` (`Sparkline: true` for inline trends) — never a JS charting library |
+| "an image carousel / lightbox / photo slider" | `Gallery` |
 
 ---
 
@@ -502,6 +507,8 @@ Breadcrumbs
 | `PageState` | Empty/error state with illustration, title, description, CTA |
 | `Slider` | Range input |
 | `VideoStream` | Live WebRTC video from a WHEP endpoint: connecting/live/offline overlays (`data-state`), Retry, reconnect with backoff, pauses while the page is hidden. `Manual` waits for Play; `Controls` adds pause/fullscreen |
+| `Chart` | Server-rendered SVG line chart over a time axis, no JS: nice y ticks, calendar x ticks, light grid, hover tooltips per point, legend for several series. `Series[].Step` for step lines (prices), `Area` fill, `ShowPoints`, `YFormat`/`XFormat` formatters, `Sparkline` for a compact inline trend, `Empty` text. `Series[].Color` is a semantic name: accent, positive, critical, warning, info, attention, neutral |
+| `Gallery` | Photo gallery: main image (`AspectClass`, default `aspect-[4/3]`), lazy thumbnail strip, arrows/arrow keys, counter, captions and a fullscreen `<dialog>` viewer (Esc closes). Alpine scope; without JS the first image shows. Empty state when there are no images |
 | `Tabs` | Tab navigation component |
 
 ---

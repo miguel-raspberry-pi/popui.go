@@ -1,0 +1,30 @@
+package examples
+
+import (
+	"time"
+
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+// Without points the chart shows the Empty text; a single point is drawn
+// as a dot in the middle of the plot.
+templ ChartEmptyExample() {
+	<div class="grid w-full max-w-2xl gap-6 sm:grid-cols-2">
+		@popui.Chart(props.Chart{
+			Title:  "Price history",
+			Height: 140,
+			Empty:  "No price changes yet",
+			Series: []props.ChartSeries{{Label: "Asking price"}},
+		})
+		@popui.Chart(props.Chart{
+			Title:   "Price history",
+			Height:  140,
+			YFormat: chartEUR,
+			Series: []props.ChartSeries{{
+				Label:  "Asking price",
+				Points: []props.ChartPoint{{X: time.Date(2026, 3, 18, 0, 0, 0, 0, time.UTC), Y: 1325, Label: "Listed"}},
+			}},
+		})
+	</div>
+}

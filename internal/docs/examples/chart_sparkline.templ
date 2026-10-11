@@ -1,0 +1,63 @@
+package examples
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+// Sparklines drop axes, grid and labels and fit inline, e.g. in a table
+// cell. Set the width with Class; the height defaults to 32px.
+templ ChartSparklineExample() {
+	@popui.Table() {
+		<thead>
+			<tr>
+				<th>Listing</th>
+				<th>Price</th>
+				<th>Last 6 months</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Carrer de Verdi 12</td>
+				<td>1.350 €</td>
+				<td>
+					@popui.Chart(props.Chart{
+						Title:     "Carrer de Verdi 12 price trend",
+						Sparkline: true,
+						Class:     "w-28",
+						YFormat:   chartEUR,
+						Series: []props.ChartSeries{{
+							Step:   true,
+							Color:  props.ChartColorPositive,
+							Points: chartMonthly(1450, 1400, 1400, 1325, 1350, 1350),
+						}},
+					})
+				</td>
+			</tr>
+			<tr>
+				<td>Passeig de Sant Joan 80</td>
+				<td>1.900 €</td>
+				<td>
+					@popui.Chart(props.Chart{
+						Title:     "Passeig de Sant Joan 80 price trend",
+						Sparkline: true,
+						Area:      true,
+						Class:     "w-28",
+						YFormat:   chartEUR,
+						Series: []props.ChartSeries{{
+							Color:  props.ChartColorCritical,
+							Points: chartMonthly(1750, 1780, 1800, 1850, 1850, 1900),
+						}},
+					})
+				</td>
+			</tr>
+			<tr>
+				<td>Carrer de Sants 201</td>
+				<td>—</td>
+				<td>
+					@popui.Chart(props.Chart{Title: "Carrer de Sants 201 price trend", Sparkline: true, Class: "w-28", Empty: "No history"})
+				</td>
+			</tr>
+		</tbody>
+	}
+}
