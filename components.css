@@ -514,6 +514,18 @@ form {
   background-color: var(--color-background-default-secondary);
 }
 
+/* TableRow with Href — the whole row is a link (navigation in popui.js). */
+.popui-table-row-link {
+  cursor: pointer;
+}
+.popui-table-row-link:focus-visible {
+  outline: 2px solid var(--color-border-selected);
+  outline-offset: -2px;
+}
+.popui-table-row-link:focus-visible td {
+  background-color: var(--color-background-default-secondary);
+}
+
 /* Resizable — drag handle on the right edge of each header cell (attached by
    popui.js). The handle is absolutely positioned, so the th needs a
    positioning context; a sticky header already provides one, so only add

@@ -6,9 +6,7 @@ import (
 )
 
 templ TableClickableExample() {
-	@popui.Table(props.Table{
-		Class: "[&_tr:hover_td]:bg-background-default-secondary [&_tr:hover_td]:cursor-pointer",
-	}) {
+	@popui.Table() {
 		<thead>
 			<tr>
 				<th>Product</th>
@@ -17,21 +15,21 @@ templ TableClickableExample() {
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
+			@popui.TableRow(props.TableRow{Href: "#widget-a"}) {
 				<td>Widget A</td>
 				<td>Available</td>
 				<td>$29.99</td>
-			</tr>
-			<tr>
+			}
+			@popui.TableRow(props.TableRow{Href: "#widget-b"}) {
 				<td>Widget B</td>
 				<td>Out of Stock</td>
 				<td>$39.99</td>
-			</tr>
-			<tr>
+			}
+			@popui.TableRow(props.TableRow{Href: "#widget-c"}) {
 				<td>Widget C</td>
 				<td>Available</td>
 				<td>$49.99</td>
-			</tr>
+			}
 		</tbody>
 	}
 }

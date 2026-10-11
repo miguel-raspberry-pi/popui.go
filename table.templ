@@ -68,6 +68,32 @@ templ Table(p ...props.Table) {
 	</div>
 }
 
+// TableRow provides a `<tr>` for a Table body. Set Href to make the whole
+// row a link (handled by popui.js, so no consumer script is needed); keep a
+// real link in one of the cells when the row's target should also be
+// reachable by screen readers.
+templ TableRow(p ...props.TableRow) {
+	{{ prp := props.First(p) }}
+	<tr
+		if prp.ID != "" {
+			id={ prp.ID }
+		}
+		if prp.Href != "" {
+			data-href={ string(prp.Href) }
+			if prp.Target != "" {
+				data-target={ prp.Target }
+			}
+			tabindex="0"
+		}
+		if prp.Href != "" || prp.Class != "" {
+			class={ tailwind.Merge(classes.If(prp.Href != "", "popui-table-row-link"), prp.Class) }
+		}
+		{ prp.Attributes... }
+	>
+		{ children... }
+	</tr>
+}
+
 // TablePagination provides pagination controls for tables with page navigation,
 // rows per page selector, and total count display. Supports a children slot for
 // custom action buttons. Uses AnchorButton for URL-based navigation.

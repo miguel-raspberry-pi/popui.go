@@ -426,6 +426,58 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
   }
 
   // ------------------------------------------------------------------
+  // Table row links
+  // ------------------------------------------------------------------
+
+  // Elements inside a TableRow that keep their own click behaviour.
+  const ROW_LINK_IGNORE = 'a, button, input, select, textarea, label, summary, [role=menu], [data-row-link-ignore]'
+
+  // Navigates to a TableRow's data-href, refusing non-http(s) URLs such as
+  // javascript:, and opening a new tab for Target=_blank or modified clicks.
+  function followRowLink(e, row) {
+    let url
+    try {
+      url = new URL(row.getAttribute('data-href'), window.location.href)
+    } catch (_) {
+      return
+    }
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return
+    if (row.getAttribute('data-target') === '_blank' || e.metaKey || e.ctrlKey || e.button === 1) {
+      window.open(url.href, '_blank', 'noopener')
+    } else {
+      window.location.assign(url.href)
+    }
+  }
+
+  // Returns the TableRow link for a pointer event, or null when the event
+  // belongs to an interactive element inside the row or ends a text selection.
+  function rowLinkTarget(e) {
+    const row = e.target.closest && e.target.closest('tr[data-href]')
+    if (!row) return null
+    const inner = e.target.closest(ROW_LINK_IGNORE)
+    if (inner && row.contains(inner)) return null
+    if (String(window.getSelection ? window.getSelection() : '').length > 0) return null
+    return row
+  }
+
+  document.addEventListener('click', function (e) {
+    const row = rowLinkTarget(e)
+    if (row) followRowLink(e, row)
+  })
+
+  document.addEventListener('auxclick', function (e) {
+    if (e.button !== 1) return
+    const row = rowLinkTarget(e)
+    if (row) followRowLink(e, row)
+  })
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || !e.target.matches || !e.target.matches('tr[data-href]')) return
+    e.preventDefault()
+    followRowLink(e, e.target)
+  })
+
+  // ------------------------------------------------------------------
   // Table column resizing
   // ------------------------------------------------------------------
 

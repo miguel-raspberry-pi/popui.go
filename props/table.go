@@ -36,6 +36,21 @@ type Table struct {
 	Resizable bool
 }
 
+// TableRow Templ component props
+type TableRow struct {
+	ID         string
+	Class      string
+	Attributes templ.Attributes
+
+	// Href makes the whole row a link: clicking it, or pressing Enter while
+	// it is focused, navigates to Href. Clicks on links, buttons, inputs and
+	// menus inside the row keep their own behaviour. Ctrl/Cmd/middle click
+	// opens Href in a new tab. Only http(s) and relative URLs are followed.
+	Href templ.SafeURL
+	// Target "_blank" always opens Href in a new tab.
+	Target string
+}
+
 // TablePaginationElements defines custom attributes for pagination interactive elements
 type TablePaginationElements struct {
 	First      templ.Attributes

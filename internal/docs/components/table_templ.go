@@ -105,7 +105,7 @@ func Table() templ.Component {
 		})
 		templ_7745c5c3_Err = modules.Example(modules.ExampleProps{
 			Title:       "Clickable Rows",
-			Description: "Add hover effects to table rows by passing additional classes via the Class prop.",
+			Description: "Use TableRow with Href to make a whole row a link. Clicking the row or pressing Enter on it navigates; links, buttons and menus inside the row keep their own behaviour, and Ctrl/Cmd-click opens a new tab.",
 			Code:        examples.LoadExample("table_clickable.templ"),
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -302,6 +302,24 @@ func Table() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = modules.APITable(modules.APITableProps{
+				Title:       "TableRow",
+				Description: "A <tr> for a Table body. With Href set, the whole row becomes a keyboard-focusable link handled by popui.js (no consumer script needed). Only http(s) and relative URLs are followed.",
+				Items: []modules.APITableItem{
+					{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the row"},
+					{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with base styles"},
+					{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes for the row"},
+					{Name: "Href", Type: "templ.SafeURL", Default: "", Description: "Navigate here when the row is clicked or Enter is pressed on it. Ctrl/Cmd/middle click opens a new tab"},
+					{Name: "Target", Type: "string", Default: "", Description: "'_blank' always opens Href in a new tab"},
+				},
+			}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = modules.APITable(modules.APITableProps{
 				Title:       "TablePagination",
 				Description: "Pagination controls for tables with page navigation, rows per page selector, and total count display. Uses AnchorButton for URL-based navigation. Supports a children slot for custom action buttons.",
 				Items: []modules.APITableItem{
@@ -325,7 +343,7 @@ func Table() templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
