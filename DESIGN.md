@@ -32,6 +32,7 @@ Before writing any UI element, check whether PopUI already covers it:
 | Side navigation | `Sidebar` > `SidebarSection` > `SidebarItem` |
 | Right panel / detail pane | `Aside` |
 | Embedded page / app (iframe) | `Frame` |
+| Live camera / WebRTC video | `VideoStream` (WHEP endpoint; behaviour in popui.js) |
 | Content card | `Card` > `CardHeader` + `CardContent` |
 | Stack of related cards on a tinted ground | `CardDeck` > `CardDeckHead` + `Card` children |
 | Drag-to-reorder stack of cards | `CardDeck` with `Reorderable` > `CardDeckHead` + `CardDeckReorderButton` |
@@ -500,6 +501,7 @@ Breadcrumbs
 | `Notification` | In-app notification display |
 | `PageState` | Empty/error state with illustration, title, description, CTA |
 | `Slider` | Range input |
+| `VideoStream` | Live WebRTC video from a WHEP endpoint: connecting/live/offline overlays (`data-state`), Retry, reconnect with backoff, pauses while the page is hidden. `Manual` waits for Play; `Controls` adds pause/fullscreen |
 | `Tabs` | Tab navigation component |
 
 ---

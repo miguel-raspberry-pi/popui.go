@@ -1,0 +1,17 @@
+package examples
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+templ VideoStreamExample() {
+	@popui.Block(props.Block{Class: "max-w-xl"}) {
+		@popui.VideoStream(props.VideoStream{
+			WHEPURL:  "/apps/camera/whep",
+			Title:    "Front door camera",
+			Manual:   true,
+			Controls: true,
+		})
+	}
+}

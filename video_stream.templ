@@ -52,7 +52,7 @@ templ VideoStream(opts ...props.VideoStream) {
 			disablepictureinpicture
 			aria-label={ title }
 		></video>
-		<div data-video-stream-overlay="connecting" class="popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-2 text-sm text-foreground-inverse-secondary" role="status">
+		<div data-video-stream-overlay="connecting" class="popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-2 bg-background-default-negative/70 text-sm text-foreground-inverse-secondary" role="status">
 			@LoadingIcon()
 			<span>Connecting…</span>
 		</div>
@@ -60,7 +60,7 @@ templ VideoStream(opts ...props.VideoStream) {
 			<span class="size-1.5 rounded-full bg-background-critical-bold" aria-hidden="true"></span>
 			<span>Live</span>
 		</div>
-		<div data-video-stream-overlay="offline" class="popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-3 p-4 text-center" role="alert">
+		<div data-video-stream-overlay="offline" class="popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-3 p-4 text-center bg-background-default-negative/80" role="alert">
 			<p class="text-base font-medium text-foreground-inverse">Stream offline</p>
 			<p data-video-stream-message class="text-sm text-foreground-inverse-secondary">The camera isn't streaming right now.</p>
 			@Button(props.Button{Type: "button", Variant: props.ButtonVariantInverse, Size: props.ButtonSizeSmall, Attributes: templ.Attributes{"data-video-stream-retry": true}}) {

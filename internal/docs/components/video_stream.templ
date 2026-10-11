@@ -1,0 +1,39 @@
+package components
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/examples"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/modules"
+)
+
+templ VideoStream() {
+	@modules.Example(modules.ExampleProps{
+		Description: "VideoStream plays a live WebRTC stream from a WHEP endpoint. popui.js connects, shows connecting, live and offline states, retries with backoff, pauses while the page is hidden and ends the session when the player leaves the page. This example is Manual: press Play. The docs site has no camera, so it goes offline.",
+		Code:        examples.LoadExample("video_stream.templ"),
+	}) {
+		@examples.VideoStreamExample()
+	}
+	@modules.Section("Signalling", "signalling") {
+		<div class="text-base text-foreground-default-secondary space-y-2 max-w-2xl">
+			<p>The player sends one non-trickle SDP offer, with ICE gathering complete (or after 2 seconds), as <code>POST</code> to <code>WHEPURL</code> with <code>Content-Type: application/sdp</code>. The server answers <code>201 Created</code> with the SDP answer as the body and the session URL in the <code>Location</code> header, or <code>503</code> with a short plain-text reason while the stream is offline.</p>
+			<p>When the player stops (Pause, hidden page, navigation or removal from the page) it sends <code>DELETE</code> to the session URL.</p>
+			<p>The root's <code>data-state</code> is <code>connecting</code>, <code>live</code>, <code>offline</code> or <code>idle</code> (Manual before Play, or paused), and every change dispatches a bubbling <code>popui-video-stream-state</code> event with <code>detail.state</code>.</p>
+		</div>
+	}
+	@modules.Section("API Reference", "api") {
+		@modules.APITable(modules.APITableProps{
+			Title:       "VideoStream",
+			Description: "Live WebRTC video player for a WHEP-style endpoint.",
+			Items: []modules.APITableItem{
+				{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the player"},
+				{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with player styles"},
+				{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes"},
+				{Name: "WHEPURL", Type: "string", Default: "", Description: "Signalling endpoint the SDP offer is POSTed to", Required: true},
+				{Name: "Title", Type: "string", Default: "Live video", Description: "Accessible label of the player"},
+				{Name: "Manual", Type: "bool", Default: "false", Description: "Wait for Play instead of connecting on load"},
+				{Name: "Controls", Type: "bool", Default: "false", Description: "Show play/pause and fullscreen buttons"},
+				{Name: "AspectRatio", Type: "string", Default: "16/9", Description: "CSS aspect-ratio of the player"},
+				{Name: "ICEServers", Type: "string", Default: "", Description: "JSON array of RTCIceServer objects; not needed on a LAN"},
+			},
+		})
+	}
+}

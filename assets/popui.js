@@ -558,6 +558,384 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
   })
 
   // ------------------------------------------------------------------
+  // Video stream (WebRTC over WHEP)
+  // ------------------------------------------------------------------
+
+  // A VideoStream root carries data-whep-url. Its player POSTs a non-trickle
+  // SDP offer there (201 + SDP answer + Location of the session, or 503 while
+  // the stream is offline), DELETEs the session when it stops, and reports
+  // what it is doing in data-state: connecting, live, offline or idle.
+
+  const VIDEO_STREAM_BACKOFF_MIN = 1000
+  const VIDEO_STREAM_BACKOFF_MAX = 30000
+  const VIDEO_STREAM_ICE_TIMEOUT = 2000
+  const VIDEO_STREAM_DISCONNECT_GRACE = 4000
+  const VIDEO_STREAM_STALL_TIMEOUT = 5000
+  const VIDEO_STREAM_FIRST_FRAME_TIMEOUT = 10000
+  const VIDEO_STREAM_OFFLINE = "The camera isn't streaming right now."
+
+  // Players on the page, so page-level events (visibility, pagehide) and
+  // element removal can reach them.
+  const videoStreams = new Set()
+
+  // Delay before reconnect attempt n (0-based): 1s, 2s, 4s … capped at 30s.
+  function videoStreamBackoff(attempt) {
+    return Math.min(VIDEO_STREAM_BACKOFF_MAX, VIDEO_STREAM_BACKOFF_MIN * Math.pow(2, Math.min(attempt, 10)))
+  }
+
+  // Resolves once ICE gathering is complete, or after the timeout so an
+  // unreachable STUN server can't hold the offer back: the server gets the
+  // candidates gathered so far.
+  function videoStreamGatherICE(pc, timeout) {
+    if (pc.iceGatheringState === 'complete') return Promise.resolve()
+    return new Promise(function (resolve) {
+      const done = function () {
+        clearTimeout(timer)
+        pc.removeEventListener('icegatheringstatechange', check)
+        resolve()
+      }
+      const check = function () {
+        if (pc.iceGatheringState === 'complete') done()
+      }
+      const timer = setTimeout(done, timeout)
+      pc.addEventListener('icegatheringstatechange', check)
+    })
+  }
+
+  // Optional data-ice-servers: a JSON array of RTCIceServer objects.
+  function videoStreamICEServers(root) {
+    const raw = root.getAttribute('data-ice-servers')
+    if (!raw) return []
+    try {
+      const servers = JSON.parse(raw)
+      return Array.isArray(servers) ? servers : []
+    } catch {
+      return []
+    }
+  }
+
+  function videoStreamDelete(url) {
+    try {
+      fetch(url, { method: 'DELETE', keepalive: true }).catch(function () {})
+    } catch {
+      // Nothing to clean up: the server expires sessions it can't reach.
+    }
+  }
+
+  function createVideoStream(root) {
+    const video = root.querySelector('video')
+    let pc = null
+    let sessionURL = null
+    let abort = null
+    // gen identifies the current session; every async step checks it so a
+    // superseded attempt quietly drops its results.
+    let gen = 0
+    let attempt = 0
+    let retryTimer = 0
+    let graceTimer = 0
+    let watchTimer = 0
+    let lastProgress = 0
+    let lastTime = -1
+    // wanted: the player should be streaming (false while Manual hasn't been
+    // played, or after Pause). suspended: streaming was stopped because the
+    // page is hidden and resumes when it shows again.
+    let wanted = !root.hasAttribute('data-manual')
+    let suspended = false
+
+    function state() {
+      return root.getAttribute('data-state')
+    }
+
+    function setState(next, message) {
+      if (message !== undefined) {
+        const el = root.querySelector('[data-video-stream-message]')
+        if (el) el.textContent = message
+      }
+      const toggle = root.querySelector('[data-video-stream-toggle]')
+      if (toggle) toggle.setAttribute('aria-label', next === 'idle' ? 'Play' : 'Pause')
+      if (state() === next) return
+      root.setAttribute('data-state', next)
+      root.dispatchEvent(new CustomEvent('popui-video-stream-state', { bubbles: true, detail: { state: next } }))
+    }
+
+    // Ends the current session: cancels timers and any in-flight offer,
+    // closes the peer connection and DELETEs the session on the server.
+    function endSession() {
+      gen++
+      clearTimeout(retryTimer)
+      clearTimeout(graceTimer)
+      clearInterval(watchTimer)
+      retryTimer = graceTimer = watchTimer = 0
+      if (abort) {
+        abort.abort()
+        abort = null
+      }
+      if (pc) {
+        pc.ontrack = null
+        pc.onconnectionstatechange = null
+        pc.close()
+        pc = null
+      }
+      if (sessionURL) {
+        videoStreamDelete(sessionURL)
+        sessionURL = null
+      }
+      if (video && video.srcObject) video.srcObject = null
+    }
+
+    // Ends the session and schedules a reconnect with backoff. A stream that
+    // was live shows "connecting" while it tries again; otherwise the
+    // offline overlay stays up (with its Retry button) across the retries.
+    function fail(message) {
+      const wasLive = state() === 'live'
+      endSession()
+      if (!wanted) return
+      setState(wasLive ? 'connecting' : 'offline', message)
+      const my = gen
+      retryTimer = setTimeout(function () {
+        if (my === gen) connect(true)
+      }, videoStreamBackoff(attempt++))
+    }
+
+    function progressed() {
+      lastProgress = performance.now()
+      if (state() !== 'live') {
+        attempt = 0
+        setState('live')
+      }
+    }
+
+    // Goes live on the first decoded frame, and fails the session when no
+    // frame arrives or frames stop progressing.
+    function watch(my) {
+      const started = performance.now()
+      lastProgress = 0
+      lastTime = -1
+      if (typeof video.requestVideoFrameCallback === 'function') {
+        const onFrame = function () {
+          if (my !== gen) return
+          progressed()
+          video.requestVideoFrameCallback(onFrame)
+        }
+        video.requestVideoFrameCallback(onFrame)
+      }
+      watchTimer = setInterval(function () {
+        if (my !== gen) return
+        if (video.currentTime > 0 && video.currentTime !== lastTime) {
+          lastTime = video.currentTime
+          progressed()
+        }
+        const now = performance.now()
+        if (!lastProgress) {
+          if (now - started > VIDEO_STREAM_FIRST_FRAME_TIMEOUT) fail('No video is arriving from the camera.')
+        } else if (now - lastProgress > VIDEO_STREAM_STALL_TIMEOUT) {
+          fail('The stream stalled.')
+        }
+      }, 1000)
+    }
+
+    // Starts a new session. quiet keeps the current overlay (a background
+    // retry behind the offline message) instead of showing "connecting".
+    async function connect(quiet) {
+      endSession()
+      const my = gen
+      const stale = function () {
+        return my !== gen
+      }
+      if (typeof RTCPeerConnection === 'undefined') {
+        setState('offline', "This browser can't play live video.")
+        return
+      }
+      if (!quiet) setState('connecting')
+      let endpoint
+      try {
+        endpoint = new URL(root.getAttribute('data-whep-url') || '', window.location.href)
+        pc = new RTCPeerConnection({ iceServers: videoStreamICEServers(root) })
+      } catch {
+        setState('offline', "The stream couldn't start.")
+        return
+      }
+      const conn = pc
+      conn.addTransceiver('video', { direction: 'recvonly' })
+      conn.ontrack = function (e) {
+        if (stale()) return
+        video.srcObject = e.streams && e.streams[0] ? e.streams[0] : new MediaStream([e.track])
+        const playing = video.play()
+        if (playing) playing.catch(function () {})
+      }
+      conn.onconnectionstatechange = function () {
+        if (stale()) return
+        const s = conn.connectionState
+        if (s === 'failed') {
+          fail('The connection to the camera was lost.')
+        } else if (s === 'disconnected') {
+          clearTimeout(graceTimer)
+          graceTimer = setTimeout(function () {
+            if (!stale() && conn.connectionState !== 'connected') fail('The connection to the camera was lost.')
+          }, VIDEO_STREAM_DISCONNECT_GRACE)
+        } else if (s === 'connected') {
+          clearTimeout(graceTimer)
+        }
+      }
+      try {
+        await conn.setLocalDescription(await conn.createOffer())
+        await videoStreamGatherICE(conn, VIDEO_STREAM_ICE_TIMEOUT)
+        if (stale()) return
+        abort = new AbortController()
+        const res = await fetch(endpoint.href, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/sdp' },
+          body: conn.localDescription.sdp,
+          signal: abort.signal,
+        })
+        const location = res.ok ? res.headers.get('Location') : null
+        const session = location ? new URL(location, endpoint).href : null
+        if (stale()) {
+          // Superseded after the server created the session: end it.
+          if (session) videoStreamDelete(session)
+          return
+        }
+        abort = null
+        sessionURL = session
+        if (!res.ok) {
+          let message = ''
+          if (res.status === 503) {
+            message = (await res.text().catch(function () { return '' })).trim()
+            if (message.length > 200 || message.indexOf('<') !== -1) message = ''
+          }
+          if (stale()) return
+          fail(message || (res.status === 503 ? VIDEO_STREAM_OFFLINE : "The stream couldn't start (error " + res.status + ")."))
+          return
+        }
+        const answer = await res.text()
+        if (stale()) return
+        await conn.setRemoteDescription({ type: 'answer', sdp: answer })
+        if (stale()) return
+        watch(my)
+      } catch (err) {
+        if (stale()) return
+        fail(err && err.name === 'TypeError' ? "Can't reach the camera." : "The stream couldn't start.")
+      }
+    }
+
+    const player = {
+      root: root,
+      // Starts streaming now (Play, Retry), resetting the backoff.
+      play: function () {
+        wanted = true
+        suspended = false
+        attempt = 0
+        connect(false)
+      },
+      // Stops streaming until play is called again.
+      pause: function () {
+        wanted = false
+        suspended = false
+        endSession()
+        setState('idle')
+      },
+      // Page hidden or unloading: end the session but resume later.
+      suspend: function () {
+        if (!wanted) return
+        suspended = true
+        endSession()
+        setState('idle')
+      },
+      resume: function () {
+        if (suspended && wanted) player.play()
+      },
+      destroy: function () {
+        wanted = false
+        endSession()
+        videoStreams.delete(player)
+        delete root._popuiVideoStream
+      },
+    }
+
+    if (wanted) {
+      if (document.visibilityState === 'hidden') suspended = true
+      else connect(false)
+    }
+    return player
+  }
+
+  // Ends the sessions of players removed from the page (HTMX swaps, Alpine
+  // templates, plain DOM removal). A moved player stays connected.
+  const videoStreamObserver = new MutationObserver(function () {
+    videoStreams.forEach(function (player) {
+      if (!player.root.isConnected) player.destroy()
+    })
+    if (videoStreams.size === 0) videoStreamObserver.disconnect()
+  })
+
+  function initVideoStreams() {
+    document.querySelectorAll('[data-video-stream]').forEach(function (root) {
+      if (root._popuiVideoStream) return
+      const player = createVideoStream(root)
+      root._popuiVideoStream = player
+      if (videoStreams.size === 0) {
+        videoStreamObserver.observe(document.documentElement, { childList: true, subtree: true })
+      }
+      videoStreams.add(player)
+    })
+  }
+
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest && e.target.closest('[data-video-stream-retry], [data-video-stream-play], [data-video-stream-toggle], [data-video-stream-fullscreen]')
+    if (!btn) return
+    const root = btn.closest('[data-video-stream]')
+    const player = root && root._popuiVideoStream
+    if (!player) return
+    if (btn.hasAttribute('data-video-stream-fullscreen')) {
+      const video = root.querySelector('video')
+      // Older Safari returns undefined instead of a promise.
+      const settle = function (p) {
+        if (p && p.catch) p.catch(function () {})
+      }
+      if (document.fullscreenElement) {
+        settle(document.exitFullscreen())
+      } else if (root.requestFullscreen) {
+        settle(root.requestFullscreen())
+      } else if (root.webkitRequestFullscreen) {
+        root.webkitRequestFullscreen()
+      } else if (video && video.webkitEnterFullscreen) {
+        // iPhone Safari only allows the video element itself fullscreen.
+        video.webkitEnterFullscreen()
+      }
+    } else if (btn.hasAttribute('data-video-stream-toggle') && root.getAttribute('data-state') !== 'idle') {
+      player.pause()
+    } else {
+      player.play()
+    }
+  })
+
+  // Hidden pages don't need video: end the sessions to save bandwidth and
+  // camera load, and reconnect when the page is shown again.
+  document.addEventListener('visibilitychange', function () {
+    videoStreams.forEach(function (player) {
+      if (document.visibilityState === 'hidden') player.suspend()
+      else player.resume()
+    })
+  })
+
+  window.addEventListener('pagehide', function () {
+    videoStreams.forEach(function (player) {
+      player.suspend()
+    })
+  })
+
+  // Back/forward cache restore: the page comes back without a session.
+  window.addEventListener('pageshow', function (e) {
+    if (!e.persisted) return
+    videoStreams.forEach(function (player) {
+      player.resume()
+    })
+  })
+
+  document.addEventListener('DOMContentLoaded', initVideoStreams)
+  document.addEventListener('htmx:afterSettle', initVideoStreams)
+
+  // ------------------------------------------------------------------
   // Card deck reordering
   // ------------------------------------------------------------------
 

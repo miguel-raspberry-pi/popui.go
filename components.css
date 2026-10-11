@@ -526,6 +526,40 @@ form {
   background-color: var(--color-background-default-secondary);
 }
 
+/* VideoStream — popui.js sets data-state on the root; each state's overlay
+   is shown from it here, so the markup needs no inline display toggling. */
+.popui-video-stream__overlay {
+  display: none;
+}
+.popui-video-stream[data-state="connecting"] [data-video-stream-overlay="connecting"],
+.popui-video-stream[data-state="live"] [data-video-stream-overlay="live"],
+.popui-video-stream[data-state="offline"] [data-video-stream-overlay="offline"],
+.popui-video-stream[data-state="idle"] [data-video-stream-overlay="idle"] {
+  display: flex;
+}
+/* The play/pause toggle shows Play while idle, Pause otherwise. */
+.popui-video-stream[data-state="idle"] [data-video-stream-icon="pause"],
+.popui-video-stream:not([data-state="idle"]) [data-video-stream-icon="play"] {
+  display: none;
+}
+/* Controls appear on hover or keyboard focus; always on touch screens. */
+.popui-video-stream__controls {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.popui-video-stream:hover .popui-video-stream__controls,
+.popui-video-stream:focus-within .popui-video-stream__controls {
+  opacity: 1;
+}
+@media (hover: none) {
+  .popui-video-stream__controls {
+    opacity: 1;
+  }
+}
+.popui-video-stream:fullscreen {
+  border-radius: 0;
+}
+
 /* Resizable — drag handle on the right edge of each header cell (attached by
    popui.js). The handle is absolutely positioned, so the th needs a
    positioning context; a sticky header already provides one, so only add

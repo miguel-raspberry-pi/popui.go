@@ -72,6 +72,12 @@ var groups = []*Group{
 				Template: components.Frame(),
 			},
 			{
+				Title:    "VideoStream",
+				Desc:     "Live WebRTC video player for a WHEP endpoint, with connecting, live and offline states.",
+				Path:     "video-stream",
+				Template: components.VideoStream(),
+			},
+			{
 				Title:    "PageState",
 				Desc:     "Layout for displaying page states with illustrations and call-to-action.",
 				Path:     "page-state",

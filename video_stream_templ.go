@@ -181,7 +181,7 @@ func VideoStream(opts ...props.VideoStream) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"></video><div data-video-stream-overlay=\"connecting\" class=\"popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-2 text-sm text-foreground-inverse-secondary\" role=\"status\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"></video><div data-video-stream-overlay=\"connecting\" class=\"popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-2 bg-background-default-negative/70 text-sm text-foreground-inverse-secondary\" role=\"status\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -189,7 +189,7 @@ func VideoStream(opts ...props.VideoStream) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>Connecting…</span></div><div data-video-stream-overlay=\"live\" class=\"popui-video-stream__overlay absolute top-2 left-2 items-center gap-1.5 rounded px-1.5 py-0.5 bg-background-default-negative/70 text-xs font-medium text-foreground-inverse\"><span class=\"size-1.5 rounded-full bg-background-critical-bold\" aria-hidden=\"true\"></span> <span>Live</span></div><div data-video-stream-overlay=\"offline\" class=\"popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-3 p-4 text-center\" role=\"alert\"><p class=\"text-base font-medium text-foreground-inverse\">Stream offline</p><p data-video-stream-message class=\"text-sm text-foreground-inverse-secondary\">The camera isn't streaming right now.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span>Connecting…</span></div><div data-video-stream-overlay=\"live\" class=\"popui-video-stream__overlay absolute top-2 left-2 items-center gap-1.5 rounded px-1.5 py-0.5 bg-background-default-negative/70 text-xs font-medium text-foreground-inverse\"><span class=\"size-1.5 rounded-full bg-background-critical-bold\" aria-hidden=\"true\"></span> <span>Live</span></div><div data-video-stream-overlay=\"offline\" class=\"popui-video-stream__overlay absolute inset-0 flex-col items-center justify-center gap-3 p-4 text-center bg-background-default-negative/80\" role=\"alert\"><p class=\"text-base font-medium text-foreground-inverse\">Stream offline</p><p data-video-stream-message class=\"text-sm text-foreground-inverse-secondary\">The camera isn't streaming right now.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
