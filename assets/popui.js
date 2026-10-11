@@ -564,7 +564,13 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
   // A VideoStream root carries data-whep-url. Its player POSTs a non-trickle
   // SDP offer there (201 + SDP answer + Location of the session, or 503 while
   // the stream is offline), DELETEs the session when it stops, and reports
-  // what it is doing in data-state: connecting, live, offline or idle.
+  // what it is doing in data-state: connecting, live, offline, idle or
+  // stopped.
+  //
+  // An optional data-control-url is a server-side live switch: GET returns
+  // {"enabled": bool}, POST <url>/stop and <url>/start change it. While it is
+  // off the player shows "stopped" and doesn't retry; it polls the switch so
+  // every viewer follows a change made elsewhere.
 
   const VIDEO_STREAM_BACKOFF_MIN = 1000
   const VIDEO_STREAM_BACKOFF_MAX = 30000
@@ -573,6 +579,10 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
   const VIDEO_STREAM_STALL_TIMEOUT = 5000
   const VIDEO_STREAM_FIRST_FRAME_TIMEOUT = 10000
   const VIDEO_STREAM_OFFLINE = "The camera isn't streaming right now."
+  const VIDEO_STREAM_POLL_INTERVAL = 5000
+  // After the live switch is turned on the camera takes a few seconds to
+  // deliver video: keep showing "connecting" and retry every second meanwhile.
+  const VIDEO_STREAM_START_GRACE = 15000
 
   // Players on the page, so page-level events (visibility, pagehide) and
   // element removal can reach them.
@@ -614,6 +624,21 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
     }
   }
 
+  // <control-url>/<action>, keeping any query string.
+  function videoStreamControlAction(controlURL, action) {
+    const url = new URL(controlURL, window.location.href)
+    url.pathname = url.pathname.replace(/\/+$/, '') + '/' + action
+    return url.href
+  }
+
+  // camera-YYYYMMDD-HHMMSS.png, in local time.
+  function videoStreamSnapshotName(d) {
+    const pad = function (n) {
+      return String(n).padStart(2, '0')
+    }
+    return 'camera-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.png'
+  }
+
   function videoStreamDelete(url) {
     try {
       fetch(url, { method: 'DELETE', keepalive: true }).catch(function () {})
@@ -641,6 +666,14 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
     // page is hidden and resumes when it shows again.
     let wanted = !root.hasAttribute('data-manual')
     let suspended = false
+    // stopped: the server-side live switch is off. startingUntil: the switch
+    // was just turned on, so failures keep retrying quickly as "connecting".
+    const controlURL = root.getAttribute('data-control-url')
+    let stopped = false
+    let startingUntil = 0
+    let polling = null
+    let pollTimer = 0
+    let switching = false
 
     function state() {
       return root.getAttribute('data-state')
@@ -652,7 +685,12 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
         if (el) el.textContent = message
       }
       const toggle = root.querySelector('[data-video-stream-toggle]')
-      if (toggle) toggle.setAttribute('aria-label', next === 'idle' ? 'Play' : 'Pause')
+      if (toggle) {
+        toggle.setAttribute('aria-label', next === 'idle' ? 'Play' : 'Pause')
+        toggle.setAttribute('title', next === 'idle' ? 'Play' : 'Pause')
+      }
+      const snap = root.querySelector('[data-video-stream-snapshot]')
+      if (snap) snap.disabled = next !== 'live'
       if (state() === next) return
       root.setAttribute('data-state', next)
       root.dispatchEvent(new CustomEvent('popui-video-stream-state', { bubbles: true, detail: { state: next } }))
@@ -687,14 +725,129 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
     // was live shows "connecting" while it tries again; otherwise the
     // offline overlay stays up (with its Retry button) across the retries.
     function fail(message) {
+      const starting = performance.now() < startingUntil
       const wasLive = state() === 'live'
       endSession()
-      if (!wanted) return
-      setState(wasLive ? 'connecting' : 'offline', message)
+      if (!wanted || stopped) return
+      setState(wasLive || starting ? 'connecting' : 'offline', message)
       const my = gen
       retryTimer = setTimeout(function () {
         if (my === gen) connect(true)
-      }, videoStreamBackoff(attempt++))
+      }, starting ? VIDEO_STREAM_BACKOFF_MIN : videoStreamBackoff(attempt++))
+      // The failure may be the live switch turned off elsewhere.
+      refresh()
+    }
+
+    // Applies the live switch's state from a GET or POST response.
+    function applyControl(data) {
+      if (!data || typeof data.enabled !== 'boolean') return
+      if (!data.enabled) {
+        if (stopped) return
+        stopped = true
+        startingUntil = 0
+        endSession()
+        setState('stopped')
+      } else if (stopped) {
+        stopped = false
+        startingUntil = performance.now() + VIDEO_STREAM_START_GRACE
+        if (wanted && !suspended) {
+          attempt = 0
+          connect(false)
+        } else {
+          setState('idle')
+        }
+      }
+    }
+
+    // Reads the live switch (one request at a time). Resolves when done,
+    // whatever the outcome: an unreachable switch leaves the state as is.
+    function refresh() {
+      if (!controlURL) return Promise.resolve()
+      if (!polling) {
+        polling = fetch(controlURL, { headers: { Accept: 'application/json' }, cache: 'no-store' })
+          .then(function (res) {
+            return res.ok ? res.json() : null
+          })
+          .then(applyControl)
+          .catch(function () {})
+          .then(function () {
+            polling = null
+          })
+      }
+      return polling
+    }
+
+    // Turns the live switch on or off for every viewer.
+    function setLive(enabled) {
+      if (!controlURL || switching) return
+      switching = true
+      const buttons = root.querySelectorAll('[data-video-stream-live], [data-video-stream-start]')
+      buttons.forEach(function (b) {
+        b.disabled = true
+      })
+      let url
+      try {
+        url = videoStreamControlAction(controlURL, enabled ? 'start' : 'stop')
+      } catch {
+        url = null
+      }
+      const req = url
+        ? fetch(url, { method: 'POST', headers: { Accept: 'application/json' } }).then(function (res) {
+            return res.ok ? res.json() : null
+          })
+        : Promise.resolve(null)
+      req
+        .catch(function () {
+          return null
+        })
+        .then(function (data) {
+          // An error response still may have changed the switch: re-read it.
+          if (data) applyControl(data)
+          else return refresh()
+        })
+        .then(function () {
+          switching = false
+          buttons.forEach(function (b) {
+            b.disabled = false
+          })
+        })
+    }
+
+    // Downloads the current frame, at the video's own resolution, as a PNG.
+    function snapshot() {
+      if (state() !== 'live' || !video || !video.videoWidth || !video.videoHeight) return
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      const name = videoStreamSnapshotName(new Date())
+      canvas.toBlob(function (blob) {
+        if (!blob) return
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = name
+        a.style.display = 'none'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        setTimeout(function () {
+          URL.revokeObjectURL(url)
+        }, 1000)
+        const toast = root.querySelector('[data-video-stream-toast]')
+        if (toast) popui.showToast(toast)
+      }, 'image/png')
+    }
+
+    // Connects unless the live switch is off, reading it first so a stopped
+    // stream never flashes "connecting".
+    function start() {
+      const my = gen
+      refresh().then(function () {
+        if (my === gen && wanted && !suspended && !stopped) connect(false)
+      })
     }
 
     function progressed() {
@@ -825,36 +978,65 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
         wanted = true
         suspended = false
         attempt = 0
+        if (stopped) {
+          setState('stopped')
+          return
+        }
         connect(false)
       },
-      // Stops streaming until play is called again.
+      // Stops this viewer's session until play is called again; other
+      // viewers and the camera are unaffected.
       pause: function () {
         wanted = false
         suspended = false
         endSession()
-        setState('idle')
+        if (!stopped) setState('idle')
       },
       // Page hidden or unloading: end the session but resume later.
       suspend: function () {
         if (!wanted) return
         suspended = true
         endSession()
-        setState('idle')
+        if (!stopped) setState('idle')
       },
       resume: function () {
-        if (suspended && wanted) player.play()
+        if (!suspended || !wanted) {
+          refresh()
+          return
+        }
+        suspended = false
+        attempt = 0
+        if (!stopped) setState('connecting')
+        start()
       },
+      // Live switch (server side, every viewer).
+      stopLive: function () {
+        setLive(false)
+      },
+      startLive: function () {
+        setLive(true)
+      },
+      snapshot: snapshot,
       destroy: function () {
         wanted = false
         endSession()
+        clearInterval(pollTimer)
         videoStreams.delete(player)
         delete root._popuiVideoStream
       },
     }
 
-    if (wanted) {
-      if (document.visibilityState === 'hidden') suspended = true
-      else connect(false)
+    if (controlURL) {
+      pollTimer = setInterval(function () {
+        if (document.visibilityState !== 'hidden') refresh()
+      }, VIDEO_STREAM_POLL_INTERVAL)
+    }
+    if (wanted && document.visibilityState === 'hidden') {
+      suspended = true
+    } else if (wanted) {
+      start()
+    } else {
+      refresh()
     }
     return player
   }
@@ -881,12 +1063,19 @@ const CONSOLE_SDK_URL = 'https://cdn.jsdelivr.net/npm/@invopop/console-ui-sdk@0.
   }
 
   document.addEventListener('click', function (e) {
-    const btn = e.target.closest && e.target.closest('[data-video-stream-retry], [data-video-stream-play], [data-video-stream-toggle], [data-video-stream-fullscreen]')
+    const btn = e.target.closest && e.target.closest('[data-video-stream-retry], [data-video-stream-play], [data-video-stream-toggle], [data-video-stream-fullscreen], [data-video-stream-live], [data-video-stream-start], [data-video-stream-snapshot]')
     if (!btn) return
     const root = btn.closest('[data-video-stream]')
     const player = root && root._popuiVideoStream
     if (!player) return
-    if (btn.hasAttribute('data-video-stream-fullscreen')) {
+    if (btn.hasAttribute('data-video-stream-live')) {
+      if (root.getAttribute('data-state') === 'stopped') player.startLive()
+      else player.stopLive()
+    } else if (btn.hasAttribute('data-video-stream-start')) {
+      player.startLive()
+    } else if (btn.hasAttribute('data-video-stream-snapshot')) {
+      player.snapshot()
+    } else if (btn.hasAttribute('data-video-stream-fullscreen')) {
       const video = root.querySelector('video')
       // Older Safari returns undefined instead of a promise.
       const settle = function (p) {

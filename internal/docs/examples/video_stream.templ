@@ -10,8 +10,9 @@ templ VideoStreamExample() {
 		@popui.VideoStream(props.VideoStream{
 			WHEPURL:  "/apps/camera/whep",
 			Title:    "Front door camera",
-			Manual:   true,
-			Controls: true,
+			Manual:     true,
+			Controls:   true,
+			ControlURL: "/apps/camera/api/stream",
 		})
 	}
 }

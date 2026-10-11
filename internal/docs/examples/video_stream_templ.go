@@ -47,10 +47,11 @@ func VideoStreamExample() templ.Component {
 			}
 			ctx = templ.InitializeContext(ctx)
 			templ_7745c5c3_Err = popui.VideoStream(props.VideoStream{
-				WHEPURL:  "/apps/camera/whep",
-				Title:    "Front door camera",
-				Manual:   true,
-				Controls: true,
+				WHEPURL:    "/apps/camera/whep",
+				Title:      "Front door camera",
+				Manual:     true,
+				Controls:   true,
+				ControlURL: "/apps/camera/api/stream",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

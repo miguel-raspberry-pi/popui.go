@@ -501,7 +501,7 @@ Breadcrumbs
 | `Notification` | In-app notification display |
 | `PageState` | Empty/error state with illustration, title, description, CTA |
 | `Slider` | Range input |
-| `VideoStream` | Live WebRTC video from a WHEP endpoint: connecting/live/offline overlays (`data-state`), Retry, reconnect with backoff, pauses while the page is hidden. `Manual` waits for Play; `Controls` adds pause/fullscreen |
+| `VideoStream` | Live WebRTC video from a WHEP endpoint: connecting/live/offline/stopped overlays (`data-state`), Retry, reconnect with backoff, pauses while the page is hidden. `Manual` waits for Play; `Controls` adds snapshot (PNG download, `NoSnapshot` hides it), pause (this viewer only) and fullscreen; `ControlURL` adds a server-side Stop live / Start live switch for every viewer |
 | `Tabs` | Tab navigation component |
 
 ---

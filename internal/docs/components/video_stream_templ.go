@@ -53,7 +53,7 @@ func VideoStream() templ.Component {
 			return nil
 		})
 		templ_7745c5c3_Err = modules.Example(modules.ExampleProps{
-			Description: "VideoStream plays a live WebRTC stream from a WHEP endpoint. popui.js connects, shows connecting, live and offline states, retries with backoff, pauses while the page is hidden and ends the session when the player leaves the page. This example is Manual: press Play. The docs site has no camera, so it goes offline.",
+			Description: "VideoStream plays a live WebRTC stream from a WHEP endpoint. popui.js connects, shows connecting, live and offline states, retries with backoff, pauses while the page is hidden and ends the session when the player leaves the page. Controls adds snapshot, pause and fullscreen buttons; ControlURL adds a Stop live / Start live switch for every viewer. This example is Manual: press Play. The docs site has no camera, so it goes offline.",
 			Code:        examples.LoadExample("video_stream.templ"),
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -71,7 +71,7 @@ func VideoStream() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"text-base text-foreground-default-secondary space-y-2 max-w-2xl\"><p>The player sends one non-trickle SDP offer, with ICE gathering complete (or after 2 seconds), as <code>POST</code> to <code>WHEPURL</code> with <code>Content-Type: application/sdp</code>. The server answers <code>201 Created</code> with the SDP answer as the body and the session URL in the <code>Location</code> header, or <code>503</code> with a short plain-text reason while the stream is offline.</p><p>When the player stops (Pause, hidden page, navigation or removal from the page) it sends <code>DELETE</code> to the session URL.</p><p>The root's <code>data-state</code> is <code>connecting</code>, <code>live</code>, <code>offline</code> or <code>idle</code> (Manual before Play, or paused), and every change dispatches a bubbling <code>popui-video-stream-state</code> event with <code>detail.state</code>.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"text-base text-foreground-default-secondary space-y-2 max-w-2xl\"><p>The player sends one non-trickle SDP offer, with ICE gathering complete (or after 2 seconds), as <code>POST</code> to <code>WHEPURL</code> with <code>Content-Type: application/sdp</code>. The server answers <code>201 Created</code> with the SDP answer as the body and the session URL in the <code>Location</code> header, or <code>503</code> with a short plain-text reason while the stream is offline.</p><p>When the player stops (Pause, hidden page, navigation or removal from the page) it sends <code>DELETE</code> to the session URL.</p><p>The root's <code>data-state</code> is <code>connecting</code>, <code>live</code>, <code>offline</code>, <code>idle</code> (Manual before Play, or paused) or <code>stopped</code> (the live switch is off), and every change dispatches a bubbling <code>popui-video-stream-state</code> event with <code>detail.state</code>.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -93,6 +93,28 @@ func VideoStream() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"text-base text-foreground-default-secondary space-y-2 max-w-2xl\"><p><code>ControlURL</code> is an optional server-side switch that turns the stream off for every viewer, e.g. to switch a camera off for privacy. <code>GET ControlURL</code> returns JSON with a boolean <code>enabled</code> (other fields are ignored); <code>POST ControlURL/stop</code> and <code>POST ControlURL/start</code> change it and answer with the same JSON. The player shows a <strong>Stop live</strong> / <strong>Start live</strong> button, polls the switch every 5 seconds while the page is visible, and while it is off shows the <code>stopped</code> state instead of retrying. Starting reconnects at once and keeps showing <code>connecting</code> while the camera warms up.</p><p>Pause (the icon button) is different: it only ends this viewer's own session.</p><p>With <code>Controls</code>, a Snapshot button (unless <code>NoSnapshot</code>) saves the current frame at the video's full resolution as <code>camera-YYYYMMDD-HHMMSS.png</code>, entirely in the browser, and shows a \"Snapshot saved\" toast. It is enabled only while live.</p></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = modules.Section("Live switch and snapshots", "controls").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
 			templ_7745c5c3_Err = modules.APITable(modules.APITableProps{
 				Title:       "VideoStream",
 				Description: "Live WebRTC video player for a WHEP-style endpoint.",
@@ -103,7 +125,9 @@ func VideoStream() templ.Component {
 					{Name: "WHEPURL", Type: "string", Default: "", Description: "Signalling endpoint the SDP offer is POSTed to", Required: true},
 					{Name: "Title", Type: "string", Default: "Live video", Description: "Accessible label of the player"},
 					{Name: "Manual", Type: "bool", Default: "false", Description: "Wait for Play instead of connecting on load"},
-					{Name: "Controls", Type: "bool", Default: "false", Description: "Show play/pause and fullscreen buttons"},
+					{Name: "Controls", Type: "bool", Default: "false", Description: "Show snapshot, pause/play and fullscreen buttons"},
+					{Name: "NoSnapshot", Type: "bool", Default: "false", Description: "Hide the Snapshot button that Controls shows"},
+					{Name: "ControlURL", Type: "string", Default: "", Description: "Server-side live switch (GET status, POST /stop and /start); adds Stop live / Start live"},
 					{Name: "AspectRatio", Type: "string", Default: "16/9", Description: "CSS aspect-ratio of the player"},
 					{Name: "ICEServers", Type: "string", Default: "", Description: "JSON array of RTCIceServer objects; not needed on a LAN"},
 				},
@@ -113,7 +137,7 @@ func VideoStream() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = modules.Section("API Reference", "api").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = modules.Section("API Reference", "api").Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
