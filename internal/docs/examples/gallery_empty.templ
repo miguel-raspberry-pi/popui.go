@@ -1,0 +1,20 @@
+package examples
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+// With no images the gallery keeps its aspect ratio and shows an empty
+// state. A single image shows without thumbnails, arrows or counter.
+templ GalleryEmptyExample() {
+	<div class="grid w-full max-w-2xl gap-6 sm:grid-cols-2">
+		@popui.Gallery(props.Gallery{Empty: "No photos yet"})
+		@popui.Gallery(props.Gallery{
+			AspectClass: "aspect-video",
+			Images: []props.GalleryImage{
+				{Src: galleryPlaceholder("Façade", 185), Alt: "Building façade", Caption: "Façade"},
+			},
+		})
+	</div>
+}

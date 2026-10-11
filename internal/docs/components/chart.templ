@@ -1,0 +1,79 @@
+package components
+
+import (
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/examples"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/modules"
+)
+
+templ Chart() {
+	@modules.Example(modules.ExampleProps{
+		Description: "Chart draws line charts over a time axis on the server: an SVG plot stretched to the container's width with HTML axis labels, so it stays legible from phone to desktop and needs no JavaScript. Y ticks round to nice steps and x ticks fall on calendar boundaries. Hover a point for its date, value and label. This price history uses a step line, an area fill and a euro YFormat.",
+		Code:        examples.LoadExample("chart.templ"),
+		Stacked:     true,
+	}) {
+		@examples.ChartExample()
+	}
+	@modules.Example(modules.ExampleProps{
+		Title:       "Multiple series",
+		Description: "Series share the axes and get a legend. Color takes a semantic name (accent, positive, critical, warning, info, attention, neutral) mapped to theme tokens, so charts follow dark mode. ShowPoints keeps the dots visible; XFormat overrides the date labels.",
+		Code:        examples.LoadExample("chart_multi_series.templ"),
+		Stacked:     true,
+	}) {
+		@examples.ChartMultiSeriesExample()
+	}
+	@modules.Example(modules.ExampleProps{
+		Title:       "Sparkline",
+		Description: "Sparkline drops the axes, grid, labels and legend for a compact inline trend, 32px high by default. Size it with Class.",
+		Code:        examples.LoadExample("chart_sparkline.templ"),
+		Stacked:     true,
+	}) {
+		@examples.ChartSparklineExample()
+	}
+	@modules.Example(modules.ExampleProps{
+		Title:       "Empty and single point",
+		Description: "Without points the chart shows the Empty text in place of the plot. A series with one point is drawn as a dot.",
+		Code:        examples.LoadExample("chart_empty.templ"),
+		Stacked:     true,
+	}) {
+		@examples.ChartEmptyExample()
+	}
+	@modules.Section("API Reference", "api") {
+		@modules.APITable(modules.APITableProps{
+			Title:       "Chart",
+			Description: "Server-rendered SVG line chart over a time axis.",
+			Items: []modules.APITableItem{
+				{Name: "ID", Type: "string", Default: "", Description: "Unique identifier for the chart"},
+				{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with chart styles"},
+				{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes"},
+				{Name: "Title", Type: "string", Default: "Line chart", Description: "Accessible name; a summary of each series is appended in the aria-label"},
+				{Name: "Series", Type: "[]props.ChartSeries", Default: "", Description: "Lines to draw on shared axes; a legend shows when there is more than one"},
+				{Name: "Height", Type: "int", Default: "200 (32 sparkline)", Description: "Plot height in px"},
+				{Name: "YFormat", Type: "func(float64) string", Default: "plain number", Description: "Formats y-axis labels and tooltip values, e.g. currency"},
+				{Name: "XFormat", Type: "func(time.Time) string", Default: "fits the span", Description: "Formats x-axis labels and tooltip dates"},
+				{Name: "Area", Type: "bool", Default: "false", Description: "Fill the space under each line with a translucent tint"},
+				{Name: "ShowPoints", Type: "bool", Default: "false", Description: "Always show a dot on each point (otherwise only on hover)"},
+				{Name: "Sparkline", Type: "bool", Default: "false", Description: "Compact inline chart without axes, grid, labels or legend"},
+				{Name: "Empty", Type: "string", Default: "No data", Description: "Text shown when no series has points"},
+			},
+		})
+		@modules.APITable(modules.APITableProps{
+			Title:       "ChartSeries",
+			Description: "One line of a Chart.",
+			Items: []modules.APITableItem{
+				{Name: "Label", Type: "string", Default: "", Description: "Name in the legend, tooltips and aria-label"},
+				{Name: "Points", Type: "[]props.ChartPoint", Default: "", Description: "Values in any order; sorted by X"},
+				{Name: "Color", Type: "string", Default: "by position", Description: "accent, positive, critical, warning, info, attention or neutral (props.ChartColor* constants)"},
+				{Name: "Step", Type: "bool", Default: "false", Description: "Step line: each value holds until the next point, e.g. prices"},
+			},
+		})
+		@modules.APITable(modules.APITableProps{
+			Title:       "ChartPoint",
+			Description: "A value at a moment in time.",
+			Items: []modules.APITableItem{
+				{Name: "X", Type: "time.Time", Default: "", Description: "Moment of the value; dates may be irregular", Required: true},
+				{Name: "Y", Type: "float64", Default: "", Description: "Value", Required: true},
+				{Name: "Label", Type: "string", Default: "", Description: "Extra tooltip text, e.g. \"Price drop\""},
+			},
+		})
+	}
+}

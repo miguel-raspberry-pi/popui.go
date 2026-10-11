@@ -1,0 +1,167 @@
+package popui
+
+import (
+	"strconv"
+
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
+)
+
+// Chart renders a line chart over a time axis entirely on the server: no
+// client JavaScript. The plot is an SVG stretched to the container's width
+// with non-scaling strokes; axis labels and points are HTML laid over it,
+// so text stays legible from phone to desktop widths. Hovering a point
+// shows a native tooltip with its date, value and label.
+//
+// Y ticks are rounded to "nice" steps, x ticks fall on calendar boundaries
+// (hours, days, weeks, months or years) and irregular dates are placed by
+// time. Series colors are semantic tokens, so the chart follows dark mode.
+// Sparkline renders a compact inline line without axes or labels.
+templ Chart(opts ...props.Chart) {
+	{{ p := props.First(opts) }}
+	{{ v := buildChart(p) }}
+	if p.Sparkline {
+		<span
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			class={ tailwind.Merge("popui-chart relative inline-block w-full align-middle", p.Class) }
+			style={ chartHeightStyle(v.Height) }
+			role="img"
+			aria-label={ v.AriaLabel }
+			data-chart="sparkline"
+			{ p.Attributes... }
+		>
+			if v.Empty {
+				<span class="absolute inset-0 flex items-center text-sm text-foreground-default-tertiary" aria-hidden="true">{ v.EmptyText }</span>
+			} else {
+				@chartPlot(p, v)
+			}
+		</span>
+	} else {
+		<div
+			if p.ID != "" {
+				id={ p.ID }
+			}
+			class={ tailwind.Merge("popui-chart @container flex w-full min-w-0 flex-col gap-3", p.Class) }
+			role="img"
+			aria-label={ v.AriaLabel }
+			data-chart="line"
+			{ p.Attributes... }
+		>
+			if v.Legend {
+				<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-foreground-default-secondary" aria-hidden="true">
+					for _, s := range v.Series {
+						<span class="inline-flex items-center gap-1.5">
+							<span class={ "size-2 shrink-0 rounded-full bg-current", s.ColorClass }></span>
+							{ s.Label }
+						</span>
+					}
+				</div>
+			}
+			if v.Empty {
+				<div
+					class="flex items-center justify-center rounded-md border border-dashed border-border text-base text-foreground-default-tertiary"
+					style={ chartHeightStyle(v.Height) }
+				>
+					{ v.EmptyText }
+				</div>
+			} else {
+				<div class="flex items-start pt-2" aria-hidden="true">
+					<div class="relative shrink-0 pr-2 text-right text-sm text-foreground-default-tertiary tabular-nums" style={ chartHeightStyle(v.Height) }>
+						<span class="invisible block h-0 overflow-hidden whitespace-nowrap">{ v.YWidest }</span>
+						for _, t := range v.YTicks {
+							<span class="absolute right-2 -translate-y-1/2 whitespace-nowrap" style={ "top: " + chartPct(t.Pos) }>{ t.Label }</span>
+						}
+					</div>
+					<div class="min-w-0 flex-1">
+						<div class="relative" style={ chartHeightStyle(v.Height) }>
+							@chartPlot(p, v)
+						</div>
+						<div class="relative mt-2 h-4 text-sm text-foreground-default-tertiary tabular-nums">
+							for i, t := range v.XTicks {
+								<span
+									class={
+										"absolute top-0 whitespace-nowrap",
+										templ.KV("-translate-x-1/2", t.Align == "center"),
+										templ.KV("@max-sm:hidden", i%2 == 1 && len(v.XTicks) > 3),
+									}
+									style={ chartXTickStyle(t) }
+								>{ t.Label }</span>
+							}
+						</div>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+// chartPlot draws the grid, lines, areas and points inside a positioned box.
+templ chartPlot(p props.Chart, v chartView) {
+	<svg
+		class="absolute inset-0 size-full overflow-visible"
+		viewBox={ "0 0 " + chartNum(chartVB) + " " + chartNum(chartVB) }
+		preserveAspectRatio="none"
+		aria-hidden="true"
+		focusable="false"
+	>
+		if !p.Sparkline {
+			if v.Grid != "" {
+				<path d={ v.Grid } fill="none" class="stroke-border-default-tertiary" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+			}
+			<path d={ "M0 " + chartNum(chartVB) + "H" + chartNum(chartVB) } fill="none" class="stroke-border" stroke-width="1" vector-effect="non-scaling-stroke"></path>
+		}
+		for _, s := range v.Series {
+			<g class={ s.ColorClass }>
+				if s.Area != "" {
+					<path d={ s.Area } fill="currentColor" fill-opacity="0.12" stroke="none"></path>
+				}
+				if s.Line != "" {
+					<path d={ s.Line } fill="none" stroke="currentColor" stroke-width={ chartStrokeWidth(p.Sparkline) } stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+				}
+			</g>
+		}
+	</svg>
+	for _, s := range v.Series {
+		if s.Hover {
+			for _, pt := range s.Points {
+				<span
+					class={ "group/point absolute size-3 -translate-x-1/2 -translate-y-1/2", s.ColorClass }
+					style={ "left: " + chartPct(pt.X) + "; top: " + chartPct(pt.Y) }
+					title={ pt.Title }
+					data-chart-point
+				>
+					<span
+						class={
+							"absolute inset-0.5 rounded-full bg-current ring-2 ring-background",
+							templ.KV("opacity-0 group-hover/point:opacity-100", !s.ShowPoints),
+						}
+					></span>
+				</span>
+			}
+		}
+	}
+}
+
+func chartPct(f float64) string {
+	return chartNum(f) + "%"
+}
+
+func chartHeightStyle(h int) string {
+	return "height: " + strconv.Itoa(h) + "px"
+}
+
+func chartXTickStyle(t chartTick) string {
+	if t.Align == "end" {
+		return "right: " + chartPct(100-t.Pos)
+	}
+	return "left: " + chartPct(t.Pos)
+}
+
+func chartStrokeWidth(sparkline bool) string {
+	if sparkline {
+		return "1.5"
+	}
+	return "2"
+}

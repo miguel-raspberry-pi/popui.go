@@ -126,6 +126,18 @@ var groups = []*Group{
 				Template: components.Calendar(),
 			},
 			{
+				Title:    "Chart",
+				Desc:     "Server-rendered SVG line chart over a time axis, with step lines, area fill, multiple series and a sparkline mode. No JavaScript.",
+				Path:     "chart",
+				Template: components.Chart(),
+			},
+			{
+				Title:    "Gallery",
+				Desc:     "Photo gallery with a main image, thumbnail strip and fullscreen viewer with captions, counter and keyboard navigation.",
+				Path:     "gallery",
+				Template: components.Gallery(),
+			},
+			{
 				Title:    "Checkbox",
 				Desc:     "Checkbox inputs with optional toggle switch variant.",
 				Path:     "checkbox",
