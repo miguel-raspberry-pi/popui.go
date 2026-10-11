@@ -12,8 +12,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	_ "embed"
-	"github.com/invopop/popui.go/internal/docs/examples"
-	"github.com/invopop/popui.go/internal/docs/modules"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/examples"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/modules"
 )
 
 func TagStatus() templ.Component {

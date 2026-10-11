@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/examples"
-	"github.com/invopop/popui.go/internal/docs"
-	"github.com/invopop/popui.go/internal/docs/assets"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/examples"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/assets"
 	"github.com/labstack/echo/v4"
 	"github.com/spf13/cobra"
 )

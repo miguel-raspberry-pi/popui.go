@@ -9,8 +9,8 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 func ButtonCopyToClipboardExample() templ.Component {
@@ -39,7 +39,7 @@ func ButtonCopyToClipboardExample() templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = popui.Button(props.Button{
-			Copy: "go get github.com/invopop/popui.go",
+			Copy: "go get github.com/miguel-raspberry-pi/popui.go",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

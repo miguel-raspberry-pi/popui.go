@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/dchest/uniuri"
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/classes"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/classes"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 func Tags(p props.Tags) templ.Component {

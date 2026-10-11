@@ -11,8 +11,8 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"strings"
 
-	"github.com/invopop/popui.go/props"
-	"github.com/invopop/popui.go/tailwind"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
 )
 
 // Flag forwards to Image using the Invopop assets CDN

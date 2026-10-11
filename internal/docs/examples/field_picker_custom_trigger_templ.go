@@ -10,9 +10,9 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/goblfields"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/goblfields"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 var envelopeFields = goblfields.MustBuild("envelope", goblfields.Options{Descriptions: true})

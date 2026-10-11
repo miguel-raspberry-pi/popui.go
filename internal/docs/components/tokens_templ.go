@@ -12,7 +12,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/internal/docs/modules"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/modules"
 	"strings"
 )
 

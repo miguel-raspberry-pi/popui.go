@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/a-h/templ"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 func renderLabel(t *testing.T, p props.Label, text string) string {

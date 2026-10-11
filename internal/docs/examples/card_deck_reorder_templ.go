@@ -10,8 +10,8 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 func CardDeckReorderExample() templ.Component {

@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/invopop/popui.go/classes"
-	"github.com/invopop/popui.go/props"
-	"github.com/invopop/popui.go/tailwind"
+	"github.com/miguel-raspberry-pi/popui.go/classes"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
 )
 
 // DescriptionList provides a wrapper for description lists (dl element).

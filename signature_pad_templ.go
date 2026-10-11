@@ -8,7 +8,7 @@ package popui
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/invopop/popui.go/props"
+import "github.com/miguel-raspberry-pi/popui.go/props"
 
 // SignaturePad renders the signature capture modal: a hidden submit form, a dialog
 // with a typed-preview tab and a freehand drawing tab, plus the required styles

@@ -1,4 +1,4 @@
-module github.com/invopop/popui.go
+module github.com/miguel-raspberry-pi/popui.go
 
 go 1.25.0
 

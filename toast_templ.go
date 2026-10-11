@@ -12,9 +12,9 @@ import (
 	"strconv"
 
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/classes"
-	"github.com/invopop/popui.go/props"
-	"github.com/invopop/popui.go/tailwind"
+	"github.com/miguel-raspberry-pi/popui.go/classes"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
 )
 
 // Toast provides a dark floating notification with a type icon, a message,

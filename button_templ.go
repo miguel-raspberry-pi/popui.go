@@ -12,9 +12,9 @@ import (
 	"strconv"
 
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/classes"
-	"github.com/invopop/popui.go/props"
-	"github.com/invopop/popui.go/tailwind"
+	"github.com/miguel-raspberry-pi/popui.go/classes"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
 )
 
 // ButtonGroup provides a wrapper around a set of horizontal buttons

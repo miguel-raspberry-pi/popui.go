@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import (
 	"fmt"
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/classes"
+	"github.com/miguel-raspberry-pi/popui.go/classes"
 	"strings"
 )
 

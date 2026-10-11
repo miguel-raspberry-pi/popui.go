@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/invopop/popui.go/htmx"
-	"github.com/invopop/popui.go/props"
-	"github.com/invopop/popui.go/tailwind"
+	"github.com/miguel-raspberry-pi/popui.go/htmx"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/tailwind"
 )
 
 // HTML provides the root `<html>` element for an HTML document. The doctype

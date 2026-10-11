@@ -9,9 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/invopop/popui.go"
-	"github.com/invopop/popui.go/goblfields"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/goblfields"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 // The tree is built once: it only changes when the GOBL dependency does.

@@ -8,7 +8,7 @@ package popui
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/invopop/popui.go/props"
+import "github.com/miguel-raspberry-pi/popui.go/props"
 
 // ContextMenu forwards to Menu and is kept so upgrading consumers don't
 // break on the rename.

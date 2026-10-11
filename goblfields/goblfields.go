@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/invopop/gobl/data"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 // SchemaPrefix is the base every GOBL schema id is built on.

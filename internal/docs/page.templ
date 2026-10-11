@@ -2,12 +2,12 @@ package docs
 
 import (
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/internal/docs/assets"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/assets"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 	"path"
 	"strings"
 
-	"github.com/invopop/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go"
 )
 
 templ Index() {
@@ -73,7 +73,7 @@ templ getStarted() {
 			<h2 class="text-xl font-semibold tracking-[-0.16px] text-foreground">Installation</h2>
 			<p class="text-foreground-default-secondary">Install the PopUI Go package:</p>
 			@popui.ButtonGroup() {
-				@popui.Button(props.Button{Copy: "go get github.com/invopop/popui.go", Size: "lg"})
+				@popui.Button(props.Button{Copy: "go get github.com/miguel-raspberry-pi/popui.go", Size: "lg"})
 			}
 		</div>
 		<div class="flex flex-col gap-3 w-full">

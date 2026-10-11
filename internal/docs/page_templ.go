@@ -10,12 +10,12 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/invopop/icons"
-	"github.com/invopop/popui.go/internal/docs/assets"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/assets"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 	"path"
 	"strings"
 
-	"github.com/invopop/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go"
 )
 
 func Index() templ.Component {
@@ -314,7 +314,7 @@ func getStarted() templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = popui.Button(props.Button{Copy: "go get github.com/invopop/popui.go", Size: "lg"}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = popui.Button(props.Button{Copy: "go get github.com/miguel-raspberry-pi/popui.go", Size: "lg"}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

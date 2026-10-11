@@ -7,7 +7,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/invopop/gobl/pkg/here"
-	"github.com/invopop/popui.go/internal/docs/components"
+	"github.com/miguel-raspberry-pi/popui.go/internal/docs/components"
 )
 
 // Page defines a single documentation page that can be rendered.

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/invopop/popui.go/goblfields"
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/goblfields"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 // testSchemas is a cut-down stand-in for the real GOBL documents, keeping the

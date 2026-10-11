@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/invopop/popui.go/props"
+	"github.com/miguel-raspberry-pi/popui.go/props"
 )
 
 // hintText is the sample hint shared by the tooltip and label tests.

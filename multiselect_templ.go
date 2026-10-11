@@ -8,7 +8,7 @@ package popui
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/invopop/popui.go/props"
+import "github.com/miguel-raspberry-pi/popui.go/props"
 
 // Multiselect forwards to Select's Multiple variant and is kept so upgrading
 // consumers don't break on the consolidation.

@@ -4,7 +4,7 @@ package assets
 import (
 	"embed"
 
-	popui "github.com/invopop/popui.go"
+	popui "github.com/miguel-raspberry-pi/popui.go"
 )
 
 //go:embed scripts/* prism-popui.css
