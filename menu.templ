@@ -87,6 +87,10 @@ templ Menu(opts ...props.Menu) {
 // the row red for destructive actions; Selected marks the current choice of
 // a picker menu with a trailing tick. Children may be richer than an icon
 // and a label — an Avatar with a name works.
+//
+// With Href the whole row is a link; with Type or PopoverTarget it is a
+// <button> (a form submit, possibly through Form for a form outside the
+// panel, or a popover toggle such as a confirmation dialog).
 templ MenuItem(opts ...props.MenuItem) {
 	{{ p := props.First(opts) }}
 	<li
@@ -98,22 +102,71 @@ templ MenuItem(opts ...props.MenuItem) {
 				"font-sans font-medium text-base w-full rounded-md",
 				classes.If(p.Variant != props.MenuItemVariantDanger, "text-foreground hover:bg-background-default-secondary"),
 				classes.If(p.Variant == props.MenuItemVariantDanger, "text-foreground-critical hover:bg-background-critical"),
+				classes.If(p.Disabled, "opacity-50 pointer-events-none"),
 				p.Class,
 			),
 		}
-		{ p.Attributes... }
+		if !p.IsAction() {
+			{ p.Attributes... }
+		}
 	>
-		// Label text wrapped in a <span> truncates with an ellipsis when the
-		// menu hits its max width; icon wrappers (divs) keep their size.
-		<div class="w-full px-2 py-1.5 flex items-center space-x-2 cursor-pointer whitespace-nowrap min-w-0 [&>span]:truncate [&>div]:shrink-0">
-			{ children... }
-			if p.Selected {
-				<span class="ml-auto! flex size-4 shrink-0 items-center justify-center">
-					@selectCheckIcon()
-				</span>
-			}
-		</div>
+		if p.Href != "" && !p.Disabled {
+			<a
+				href={ p.Href }
+				if p.Target != "" {
+					target={ p.Target }
+				}
+				role="menuitem"
+				class={ menuItemRowClass }
+				{ p.Attributes... }
+			>
+				@menuItemContent(p) {
+					{ children... }
+				}
+			</a>
+		} else if p.IsAction() {
+			<button
+				type={ p.ButtonType() }
+				role="menuitem"
+				if p.Form != "" {
+					form={ p.Form }
+				}
+				if p.Name != "" {
+					name={ p.Name }
+					value={ p.Value }
+				}
+				if p.PopoverTarget != "" {
+					popovertarget={ p.PopoverTarget }
+				}
+				disabled?={ p.Disabled }
+				class={ menuItemRowClass + " text-left" }
+				{ p.Attributes... }
+			>
+				@menuItemContent(p) {
+					{ children... }
+				}
+			</button>
+		} else {
+			<div class={ menuItemRowClass }>
+				@menuItemContent(p) {
+					{ children... }
+				}
+			</div>
+		}
 	</li>
+}
+
+// Label text wrapped in a <span> truncates with an ellipsis when the menu
+// hits its max width; icon wrappers (divs) keep their size.
+const menuItemRowClass = "w-full px-2 py-1.5 flex items-center space-x-2 cursor-pointer whitespace-nowrap min-w-0 [&>span]:truncate [&>div]:shrink-0"
+
+templ menuItemContent(p props.MenuItem) {
+	{ children... }
+	if p.Selected {
+		<span class="ml-auto! flex size-4 shrink-0 items-center justify-center">
+			@selectCheckIcon()
+		</span>
+	}
 }
 
 // MenuSeparator provides a thin horizontal line delimiting groups of

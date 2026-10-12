@@ -495,7 +495,7 @@ Breadcrumbs
 |-----------|-------------|
 | `Avatar` | Circular user avatar; `Size: "lg"` or default (small). Accepts `Initial` text or `Image` child |
 | `Accordion` | Native `details/summary` expandable sections |
-| `Menu` | Trigger button + dropdown menu of actions; supports `RightAlign`. Use `MenuSeparator` to divide item groups |
+| `Menu` | Trigger button + dropdown menu of actions; supports `RightAlign`. Use `MenuSeparator` to divide item groups. `MenuItem` rows can be links (`Href`), form submits (`Type`, `Form`, `Name`, `Value`) or popover toggles (`PopoverTarget`) |
 | `SplitButton` | Main action button + attached chevron toggle opening a dropdown of related actions (`MenuItem` children); supports `RightAlign` and `DropUp` |
 | `DescriptionList` | `dl`-based term/value pairs for data display |
 | `Separator` | Dashed horizontal divider |

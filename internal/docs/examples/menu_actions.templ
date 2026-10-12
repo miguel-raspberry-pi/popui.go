@@ -1,0 +1,29 @@
+package examples
+
+import (
+	"github.com/invopop/icons"
+	"github.com/miguel-raspberry-pi/popui.go"
+	"github.com/miguel-raspberry-pi/popui.go/props"
+)
+
+templ MenuActionsExample() {
+	<form id="menu-actions-toggle" action="#" method="post"></form>
+	@popui.Menu(props.Menu{RightAlign: true}) {
+		@popui.MenuItem(props.MenuItem{Href: "#settings"}) {
+			@icons.Settings()
+			<span>Configure</span>
+		}
+		@popui.MenuItem(props.MenuItem{Type: "submit", Form: "menu-actions-toggle", Name: "enabled", Value: ""}) {
+			@icons.View()
+			<span>Disable</span>
+		}
+		@popui.MenuSeparator()
+		@popui.MenuItem(props.MenuItem{Variant: props.MenuItemVariantDanger, PopoverTarget: "menu-actions-confirm"}) {
+			@icons.Delete()
+			<span>Remove</span>
+		}
+	}
+	@popui.Popover(props.Popover{ID: "menu-actions-confirm", Backdrop: true, Class: "max-w-md"}) {
+		@popui.TitleGroup(props.TitleGroup{Title: "Remove this item?", Description: "A menu row can open a confirmation dialog."})
+	}
+}

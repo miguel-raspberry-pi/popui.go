@@ -60,6 +60,39 @@ type MenuItem struct {
 	// Selected marks the item as the current choice with a trailing tick,
 	// for menus that act as pickers.
 	Selected bool
+
+	// Href makes the whole row a link to this URL.
+	Href templ.SafeURL
+	// Target is the link's target (e.g. "_blank"); used with Href.
+	Target string
+	// Type makes the whole row a <button> of this type ("submit" or
+	// "button"), for actions that post a form or open a popover. Ignored
+	// with Href.
+	Type string
+	// Form is the id of the <form> a submit row belongs to, so the form
+	// can live outside the menu panel.
+	Form string
+	// Name and Value are submitted with the form by a submit row.
+	Name  string
+	Value string
+	// PopoverTarget is the id of a popover (a confirmation dialog, …) that
+	// a button row toggles.
+	PopoverTarget string
+	// Disabled greys the row out and makes it inert.
+	Disabled bool
+}
+
+// IsAction reports whether the item renders as a link or a button.
+func (m MenuItem) IsAction() bool {
+	return m.Href != "" || m.Type != "" || m.PopoverTarget != ""
+}
+
+// ButtonType is the <button> type of an action row, "button" by default.
+func (m MenuItem) ButtonType() string {
+	if m.Type == "" {
+		return "button"
+	}
+	return m.Type
 }
 
 // MenuLabel is a non-interactive group heading within a Menu.

@@ -99,6 +99,32 @@ func Menu() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = examples.MenuActionsExample().Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = modules.Example(modules.ExampleProps{
+			Title:       "Links and Buttons",
+			Description: "Set Href to make a whole row a link, Type (with Form, Name and Value) to make it a form submit, or PopoverTarget to open a popover such as a confirmation dialog.",
+			Code:        examples.LoadExample("menu_actions.templ"),
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
 			templ_7745c5c3_Err = examples.MenuCustomTriggerExample().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -109,11 +135,11 @@ func Menu() templ.Component {
 			Title:       "Custom Trigger",
 			Description: "Set Trigger to open the menu from any component — an avatar, an icon, a styled row — instead of the default kebab button. The trigger content is wrapped in an unstyled button carrying the popover wiring, so pass non-interactive content.",
 			Code:        examples.LoadExample("menu_custom_trigger.templ"),
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -135,11 +161,11 @@ func Menu() templ.Component {
 			Title:       "Scrolling",
 			Description: "Long menus never extend past the viewport edge — the panel caps its height there and the items scroll inside. No prop needed; a menu that fits stays content-sized.",
 			Code:        examples.LoadExample("menu_scrolling.templ"),
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var6 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var7 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -161,11 +187,11 @@ func Menu() templ.Component {
 			Title:       "With Separator",
 			Description: "Use MenuSeparator to draw a thin line between groups of items — for example, separating destructive actions from the rest.",
 			Code:        examples.LoadExample("menu_with_separator.templ"),
-		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var7 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var8 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -208,7 +234,14 @@ func Menu() templ.Component {
 					{Name: "Class", Type: "string", Default: "", Description: "Additional CSS classes to merge with base styles"},
 					{Name: "Variant", Type: "string", Default: "", Description: "Item style; 'danger' colors the row red for destructive actions"},
 					{Name: "Selected", Type: "bool", Default: "false", Description: "Marks the current choice of a picker menu with a trailing tick"},
-					{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes to apply to the list item"},
+					{Name: "Href", Type: "templ.SafeURL", Default: "", Description: "Makes the whole row a link"},
+					{Name: "Target", Type: "string", Default: "", Description: "Link target, used with Href"},
+					{Name: "Type", Type: "string", Default: "", Description: "Makes the whole row a <button> of this type ('submit' or 'button')"},
+					{Name: "Form", Type: "string", Default: "", Description: "Id of the form a submit row belongs to, so the form can live outside the menu"},
+					{Name: "Name / Value", Type: "string", Default: "", Description: "Submitted with the form by a submit row"},
+					{Name: "PopoverTarget", Type: "string", Default: "", Description: "Id of a popover the row toggles, e.g. a confirmation dialog"},
+					{Name: "Disabled", Type: "bool", Default: "false", Description: "Greys the row out and makes it inert"},
+					{Name: "Attributes", Type: "templ.Attributes", Default: "", Description: "Additional HTML attributes, on the link or button for action rows, on the list item otherwise"},
 				},
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -248,7 +281,7 @@ func Menu() templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = modules.Section("API Reference", "api").Render(templ.WithChildren(ctx, templ_7745c5c3_Var7), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = modules.Section("API Reference", "api").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
